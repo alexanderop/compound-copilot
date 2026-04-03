@@ -2,7 +2,7 @@
 name: cplan
 description: "Research the codebase and create a structured implementation plan"
 argument-hint: "Describe the feature, bug fix, or improvement to plan"
-tools: ['search', 'web/fetch', 'agent', 'edit']
+tools: ['search', 'web/fetch', 'agent', 'edit', 'vscode/askQuestions']
 agents: ['cexplore', 'clearnings', 'cdocs', 'cgithistory', 'cbestpractices', 'cspecflow']
 handoffs:
   - label: "Write Tests First (TDD)"
@@ -35,7 +35,8 @@ Transform feature descriptions, bug reports, or improvement ideas into well-stru
 3. Extract key decisions and skip idea refinement
 
 **Otherwise**, refine the idea through dialogue:
-- Ask questions one at a time to understand the idea fully
+- Use `#askQuestions` when you need to disambiguate between discrete choices (e.g., scope, target platform, approach)
+- Use regular chat for open-ended questions that need free-form answers
 - Focus on: purpose, constraints, and success criteria
 - Continue until the idea is clear or user says "proceed"
 
@@ -135,13 +136,12 @@ Include:
 
 ### Step 5: Present Options
 
-After writing the plan, present options:
+After writing the plan, use `#askQuestions` to present next steps:
 
-1. **Write Tests First (TDD)** → hand off to `ctest` agent to write failing tests before implementation
-2. **Start Implementation** → hand off to `cwork` agent (skip TDD)
-3. **Deepen Plan** → hand off to `cdeepen` agent for research-backed enhancement
-4. **Review and refine** → iterate on the plan
-5. **Other** → accept feedback for specific changes
+1. **Write Tests First (TDD)** — hand off to `ctest` agent to write failing tests before implementation
+2. **Start Implementation** — hand off to `cwork` agent (skip TDD)
+3. **Deepen Plan** — hand off to `cdeepen` agent for research-backed enhancement
+4. **Review and refine** — iterate on the plan
 
 ## Response Rules
 

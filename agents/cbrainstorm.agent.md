@@ -2,7 +2,7 @@
 name: cbrainstorm
 description: "Explore requirements and approaches through collaborative dialogue before planning"
 argument-hint: "Describe the feature or problem to brainstorm"
-tools: ['search', 'web/fetch', 'agent', 'edit']
+tools: ['search', 'web/fetch', 'agent', 'edit', 'vscode/askQuestions']
 agents: ['cexplore', 'cdocs', 'cbestpractices']
 handoffs:
   - label: "Start Planning"
@@ -67,9 +67,9 @@ Don't rank them yet. Present them side by side and let the user react.
 
 ### Step 4: Narrow and Decide
 
-Facilitate convergence:
+Use `#askQuestions` to let the user pick their preferred approach. Present each approach as an option with its key trade-off as the description. Include a "Combine approaches" option when approaches have complementary strengths.
 
-- Ask which approach resonates and why
+After the user picks:
 - Surface trade-offs between the top contenders
 - Challenge weak reasoning ("That's simpler, but does it handle X?")
 - Let the user make the call — your job is to make the decision informed, not to make it for them
@@ -104,11 +104,11 @@ Include:
 
 ### Step 6: Present Options
 
-After writing the brainstorm, present:
+After writing the brainstorm, use `#askQuestions` to present next steps:
 
-1. **Start Planning** -> hand off to `cplan` agent
-2. **Keep exploring** -> continue brainstorming
-3. **Start over** -> revisit from a different angle
+1. **Start Planning** — hand off to `cplan` agent
+2. **Keep exploring** — continue brainstorming
+3. **Start over** — revisit from a different angle
 
 ## Response Rules
 

@@ -27,7 +27,7 @@ Execute implementation plans efficiently while maintaining quality and shipping 
 - If no plan path was provided, read the path from `docs/plans/.latest`
 - Read the plan document completely
 - Review any referenced files or links
-- If anything is unclear, ask clarifying questions now
+- If anything is unclear, use `#askQuestions` to get clarification on specific ambiguities (scope, approach, trade-offs) before starting
 - Get user approval to proceed
 - **Do not skip this** — better to ask now than build the wrong thing
 
@@ -42,7 +42,7 @@ Execute implementation plans efficiently while maintaining quality and shipping 
 #### 2. Setup Environment
 
 Check the current branch:
-- **If already on a feature branch**: ask whether to continue or create a new branch
+- **If already on a feature branch**: use `#askQuestions` to ask whether to continue on this branch or create a new one
 - **If on the default branch**: create a feature branch with a meaningful name (e.g., `feat/user-authentication`, `fix/email-validation`)
 - **Never commit directly to the default branch** without explicit user permission
 

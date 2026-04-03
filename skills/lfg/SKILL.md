@@ -23,7 +23,9 @@ Before planning, evaluate whether brainstorming would help:
 - The subagent explores intent, generates approaches, and writes a brainstorm to `docs/brainstorms/`
 - Do NOT brainstorm yourself — that is cbrainstorm's job
 
-**Gate: Pause for user decision.** Present: "Brainstorm complete. Say 'plan' to move to planning, or keep exploring."
+**Gate: Pause for user decision.** Use `#askQuestions` to present:
+1. **Move to planning** — brainstorm is solid, start creating the plan
+2. **Keep exploring** — continue brainstorming
 
 If the user says "brainstorm" or "let's think about this first" anywhere in their request, always run this step.
 
@@ -35,9 +37,9 @@ Delegate to the `@cplan` subagent with the user's feature description.
 - If a brainstorm was produced in step 0, `cplan` will automatically pick it up from `docs/brainstorms/.latest`
 - Do NOT research the codebase yourself — that is cplan's job
 
-**Gate: Pause for user approval before proceeding.**
-
-Present: "Plan ready. Review it and say 'go' to start implementation, or provide feedback to refine."
+**Gate: Pause for user approval.** Use `#askQuestions` to present:
+1. **Start implementation** — plan looks good, proceed to TDD
+2. **Refine plan** — provide feedback to adjust
 
 ### 2. Write Tests First (TDD Red Phase)
 
@@ -49,7 +51,9 @@ Delegate to the `@ctest` subagent.
 - It commits the failing tests and writes test paths to `docs/tests/.latest`
 - Do NOT write tests yourself — that is ctest's job
 
-**Gate: Pause for user approval.** Present: "Failing tests written. Review them and say 'go' to start implementation, or provide feedback to adjust."
+**Gate: Pause for user approval.** Use `#askQuestions` to present:
+1. **Start implementation** — tests look good, make them pass
+2. **Adjust tests** — provide feedback to revise
 
 ### 3. Implement (TDD Green Phase)
 

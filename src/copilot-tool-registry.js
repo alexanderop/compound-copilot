@@ -38,6 +38,7 @@ export const TOOL_SETS = {
     "usages",
   ],
   vscode: [
+    "askQuestions",
     "getProjectSetupInfo",
     "installExtension",
     "memory",

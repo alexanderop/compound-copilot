@@ -49,7 +49,8 @@ Write tests for a plan's acceptance criteria. Works in two modes:
 #### 4. Map Criteria to Tests
 - For each acceptance criterion in the plan, draft a test name and brief description
 - Group tests by file/module based on where the implementation lives (or will live)
-- Present the test plan to the user for approval before writing
+- Present the test plan (names + descriptions) to the user for approval before writing
+- Use `#askQuestions` to confirm: "Proceed with these [N] tests?" with options to approve, add more, or adjust scope
 
 ### Phase 2: Write Tests
 
@@ -100,7 +101,7 @@ Run the test suite and check results based on mode:
 
 ### Phase 5: Hand Off
 
-Present options based on mode:
+Use `#askQuestions` to present options based on mode:
 
 **Pre-implementation:**
 1. **Start Implementation** — hand off to `cwork` to make the tests pass (green phase)
