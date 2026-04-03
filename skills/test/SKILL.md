@@ -1,26 +1,19 @@
 ---
-name: ctest
-description: "Write tests from a plan's acceptance criteria — before or after implementation"
+name: test
+description: "Write tests from a plan's acceptance criteria — before or after implementation. Use when the user says 'write tests', 'test this', 'TDD', or wants to create tests for a planned feature."
 argument-hint: "Path to plan file or leave empty to read from docs/plans/.latest"
-tools: ['*']
-agents: ['cexplore']
-handoffs:
-  - label: "Start Implementation"
-    agent: cwork
-    prompt: "Read and implement the plan listed in docs/plans/.latest — failing tests already exist in docs/tests/.latest, make them pass."
-    send: true
-  - label: "Simplify Code"
-    agent: csimplify
-    prompt: "Review and clean up the changed code. Read docs/plans/.latest for context."
-    send: true
 ---
 
-# Test Agent
+# Test
 
 Write tests for a plan's acceptance criteria. Works in two modes:
 
-- **Before implementation (TDD red phase):** write failing tests that define "done", then hand off to `cwork` to make them pass
+- **Before implementation (TDD red phase):** write failing tests that define "done", then hand off to `/work` to make them pass
 - **After implementation:** write tests that verify the code already works, catching gaps in coverage
+
+## Subagents
+
+This skill uses the `cexplore` subagent to research testing conventions in the codebase.
 
 ## Workflow
 
@@ -99,19 +92,27 @@ Run the test suite and check results based on mode:
    - Number of test cases written
    - Status: all red (pre) or all green (post)
 
-### Phase 5: Hand Off
+### Phase 5: Handover
 
-Use `#askQuestions` to present options based on mode:
+Use `#askQuestions` to ask what the user wants to do next, based on mode:
 
 **Pre-implementation:**
-1. **Start Implementation** — hand off to `cwork` to make the tests pass (green phase)
-2. **Add more tests** — continue writing tests
-3. **Revise tests** — adjust based on feedback
+
+| Option | When to show |
+|--------|-------------|
+| **Start Implementation (Recommended)** — load the `/work` skill | Always (default) |
+| **Add more tests** — continue writing tests | Always |
+| **Revise tests** — adjust based on feedback | Always |
 
 **Post-implementation:**
-1. **Simplify Code** — hand off to `csimplify` to clean up
-2. **Add more tests** — continue writing tests
-3. **Revise tests** — adjust based on feedback
+
+| Option | When to show |
+|--------|-------------|
+| **Simplify Code (Recommended)** — load the `/simplify` skill | Always (default) |
+| **Add more tests** — continue writing tests | Always |
+| **Revise tests** — adjust based on feedback | Always |
+
+**After the user picks a next skill**, announce the handover and load the chosen skill.
 
 ## Key Principles
 

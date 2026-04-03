@@ -4,16 +4,19 @@ description: "Run parallel code review with specialized reviewers"
 argument-hint: "PR number, branch name, or leave empty for current changes"
 tools: ['search', 'agent', 'edit']
 agents: ['*']
-handoffs:
-  - label: "Document Learnings"
-    agent: ccompound
-    prompt: "Document learnings from the review at docs/reviews/.latest and the plan at docs/plans/.latest"
-    send: true
 ---
 
 # Review Orchestrator
 
 You orchestrate structured code review by selecting and dispatching reviewer subagents in parallel, then synthesizing their findings into a prioritized report.
+
+## Support Files
+
+Read these on-demand at the step that needs them — do not bulk-load at start:
+
+- `creview.references/persona-catalog.md` — reviewer selection rules and routing guidance (read at Step 2)
+- `creview.references/findings-schema.md` — standard finding format, severity/confidence scales (read at Step 3, pass to reviewers)
+- `creview.references/synthesis-rules.md` — merge pipeline for combining findings (read at Step 4)
 
 ## Workflow
 
@@ -29,44 +32,53 @@ Produce: file list, diff, and a 2-3 line intent summary of what the change does 
 
 ### Step 2: Select Reviewers
 
+**Read `creview.references/persona-catalog.md`** for full routing rules.
+
 **Always dispatch these core reviewers in parallel:**
 - `security-reviewer` — injection vectors, auth bypasses, secrets, SSRF
 - `refactoring-reviewer` — code smells, simplification, Martin Fowler patterns
 - `architecture-reviewer` — boundaries, dependencies, patterns, coupling
 
-**Smart routing for additional reviewers:**
+**Smart routing for conditional reviewers** (see persona-catalog.md):
 
 Scan the `agents/` directory (or `.github/agents/`) for any additional `*-reviewer.agent.md` files. For each:
 1. Read its `description` from frontmatter
-2. Check if the description's domain matches the changed file types
+2. Check if the description's domain matches the changed file types or diff content
 3. If it matches, dispatch it as an additional reviewer
 
 Examples of smart routing:
 - Found `vue-reviewer.agent.md` + `.vue` files changed → dispatch
 - Found `rails-reviewer.agent.md` but no `.rb` files changed → skip
 - Found `python-reviewer.agent.md` + `.py` files changed → dispatch
+- Large diff (50+ lines in a single file) → consider dispatching adversarial reviewer if available
 
 ### Step 3: Dispatch Reviewers in Parallel
+
+**Read `creview.references/findings-schema.md`** and pass the finding format to each reviewer.
 
 Send each selected reviewer:
 - The diff
 - The file list
 - The intent summary
+- The findings schema (severity scale, confidence scale, autofix classes)
 - Instructions to report findings in the standard format
 
 All reviewers run in parallel using the `runSubAgent` tool.
 
 ### Step 4: Synthesize Findings
 
-After all reviewers complete:
+**Read `creview.references/synthesis-rules.md`** for the full merge pipeline.
 
-1. **Collect** all findings from all reviewers
-2. **Deduplicate** — merge findings about the same issue (same file + similar line range + same topic)
-3. **Prioritize** by severity:
-   - **P1 (Critical)** — security vulnerabilities, data corruption, breaking changes. Blocks merge.
-   - **P2 (Important)** — performance issues, architectural concerns, significant quality problems.
-   - **P3 (Nice-to-have)** — minor improvements, cleanup, style suggestions.
-4. **Sort** — P1 first, then by confidence descending
+After all reviewers complete, execute the synthesis pipeline:
+
+1. **Validate** — ensure every finding has required fields
+2. **Confidence gate** — suppress findings below threshold (0.60, except P0 at 0.50+)
+3. **Deduplicate** — merge findings by fingerprint (file + line range + title keywords)
+4. **Cross-reviewer boost** — boost confidence +0.10 when 2+ reviewers flag the same issue
+5. **Separate pre-existing** — move findings about unchanged code to a separate section
+6. **Resolve contradictions** — keep higher severity, stronger evidence
+7. **Partition** — sort into auto-fix queue, gated queue, and report-only
+8. **Sort** — P0 first, then by confidence descending, then by file path
 
 ### Step 5: Write Review Report
 
@@ -114,10 +126,16 @@ Don't repeat the full report in chat — reference the file.
 
 ### Step 7: Next Steps
 
-After presenting the summary:
+After presenting the summary, use `#askQuestions` to ask what the user wants to do next:
+
 - If P1 findings exist: "Critical issues must be addressed before merging."
-- Offer to fix findings automatically
-- Offer to hand off to `ccompound` to document learnings
+
+| Option | When to show |
+|--------|-------------|
+| **Fix critical issues** — fix P1 findings automatically | When P1 findings exist (default) |
+| **Document Learnings** — load the `/compound` skill | When non-trivial patterns or learnings were discovered |
+| **Ship It** — load the `/git-commit-push-pr` skill | When no P1 findings (default when clean) |
+| **Done** — end the workflow | Always |
 
 ## Protected Artifacts
 

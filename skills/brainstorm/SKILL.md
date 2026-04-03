@@ -1,22 +1,16 @@
 ---
-name: cbrainstorm
+name: brainstorm
 description: "Explore requirements and approaches through collaborative dialogue before writing a right-sized requirements document and planning implementation. Use for feature ideas, problem framing, when the user says 'let's brainstorm', or when they want to think through options before deciding what to build."
 argument-hint: "[feature idea or problem to explore]"
-tools: ['edit', 'vscode/askQuestions']
-handoffs:
-  - label: "Start Planning"
-    agent: cplan
-    prompt: "Read the brainstorm in docs/brainstorms/.latest and create an implementation plan"
-    send: true
 ---
 
-# Brainstorm Agent
+# Brainstorm
 
-Explore the problem space before committing to a plan. Brainstorming answers **WHAT** to build through collaborative dialogue. It precedes `cplan`, which answers **HOW** to build it.
+Explore the problem space before committing to a plan. Brainstorming answers **WHAT** to build through collaborative dialogue. It precedes `/plan`, which answers **HOW** to build it.
 
 The durable output is a **requirements document** — strong enough that planning does not need to invent product behavior, scope boundaries, or success criteria.
 
-This agent does not implement code. It explores, clarifies, and documents decisions for later planning or execution.
+This skill does not implement code. It explores, clarifies, and documents decisions for later planning or execution.
 
 **All file references in generated documents must use repo-relative paths (e.g., `src/models/user.rb`), never absolute paths.**
 
@@ -34,7 +28,7 @@ This agent does not implement code. It explores, clarifies, and documents decisi
 1. **Ask one question at a time** — don't overwhelm with a list
 2. **Prefer single-select** when choosing one direction, priority, or next step
 3. **Use multi-select sparingly** — only for compatible sets that can all coexist (goals, constraints, non-goals). If prioritization matters, follow up asking which is primary
-4. **Use `vscode/askQuestions`** for every clarifying question. Ask exactly one question per call. If cancelled, state it explicitly, retry once, then fall back to plain chat
+4. **Use `#askQuestions`** for every clarifying question. Ask exactly one question per call. If cancelled, state it explicitly, retry once, then fall back to plain chat
 5. **Keep outputs concise** — brainstorming is about exploration, not documentation
 
 ## Workflow
@@ -49,7 +43,7 @@ This agent does not implement code. It explores, clarifies, and documents decisi
 
 #### Check for Prior Art
 
-Search `docs/brainstorms/` and `docs/plans/` for related topics. If found, use `vscode/askQuestions` to ask: "Found related brainstorm from [date]: [topic]. Want to build on it or start fresh?"
+Search `docs/brainstorms/` and `docs/plans/` for related topics. If found, use `#askQuestions` to ask: "Found related brainstorm from [date]: [topic]. Want to build on it or start fresh?"
 
 If resuming, read the document, summarize current state, and continue from its existing decisions.
 
@@ -111,7 +105,7 @@ Challenge the request before committing. Match depth to scope:
 
 #### 1.3 Collaborative Dialogue
 
-Use `vscode/askQuestions` for every clarifying question. Ask exactly one question per tool call. If cancelled, state that explicitly, retry once, then fall back to plain chat.
+Use `#askQuestions` for every clarifying question. Ask exactly one question per tool call. If cancelled, state that explicitly, retry once, then fall back to plain chat.
 
 Progress from broad to narrow:
 1. **Problem frame** — "What problem does this solve? Why now?"
@@ -155,7 +149,7 @@ If relevant, label each approach: reuse / extend / net-new.
 
 Lead with your recommendation and explain why. If one approach is clearly best, state it directly rather than forcing a menu.
 
-**Narrow and Decide:** Use `vscode/askQuestions` to let the user pick. Present each approach as an option with its key trade-off as the description. Include "Combine approaches" when approaches have complementary strengths.
+**Narrow and Decide:** Use `#askQuestions` to let the user pick. Present each approach as an option with its key trade-off as the description. Include "Combine approaches" when approaches have complementary strengths.
 
 After the user picks:
 - Surface trade-offs between top contenders
@@ -212,7 +206,7 @@ topic: kebab-case-topic-name
   - *Deferred to Planning* — can be resolved during planning. Format: `[Affects R2][Technical] Question` or `[Affects R3][Needs research] Question`
   - Rules: use "Resolve Before Planning" sparingly. Do not force resolution of technical questions — those belong in planning. Carry deferred questions forward explicitly.
 - **Alternatives Considered** — what was explored and rejected, with reasons
-- **Next Steps** — `-> cplan` when ready, or `-> Resume cbrainstorm` when blocked
+- **Next Steps** — `-> /plan` when ready, or `-> Resume /brainstorm` when blocked
 
 #### Visual Aids
 
@@ -225,14 +219,14 @@ Include when requirements would be significantly easier to understand with one:
 | 3+ interacting participants | Mermaid or ASCII relationship diagram |
 | Multiple competing approaches | Comparison table |
 
-**Skip when:** prose is clear enough, diagram would just restate requirements, visual describes implementation architecture (belongs in `cplan`), or brainstorm is simple and linear.
+**Skip when:** prose is clear enough, diagram would just restate requirements, visual describes implementation architecture (belongs in `/plan`), or brainstorm is simple and linear.
 
 **Format:** Mermaid (default) for simple flows (5-15 nodes). ASCII for annotated flows with rich in-box content (80-col max). Markdown tables for comparisons. Place inline at point of relevance. Prose is authoritative when visual and prose disagree.
 
 #### Pre-Finalization Checklist
 
 Before marking complete:
-- What would `cplan` still have to invent if this brainstorm ended now?
+- What would `/plan` still have to invent if this brainstorm ended now?
 - Do any requirements depend on something claimed to be out of scope?
 - Are any unresolved items actually product decisions rather than planning questions?
 - Did implementation details leak in when they shouldn't have?
@@ -242,15 +236,18 @@ Before marking complete:
 
 If planning would need to invent product behavior, scope boundaries, or success criteria, the brainstorm is not complete yet.
 
-### Step 6: Present Options
+### Step 6: Handover
 
-Use `vscode/askQuestions` to present next steps. Only show options that apply:
+Use `#askQuestions` to ask what the user wants to do next. Only show options that apply:
 
 **When no blocking questions remain:**
-1. **Start Planning (Recommended)** — hand off to `cplan` agent
-2. **Keep exploring** — continue brainstorming (return to Step 1.3)
-3. **Proceed directly to work** — only when scope is lightweight, success criteria are clear, and no technical questions remain
-4. **Done for now** — return later
+
+| Option | When to show |
+|--------|-------------|
+| **Start Planning (Recommended)** — load the `/plan` skill | Always (default recommendation) |
+| **Keep exploring** — continue brainstorming (return to Step 1.3) | Always |
+| **Proceed directly to work** — load the `/work` skill | Only when scope is lightweight, success criteria are clear, and no technical questions remain |
+| **Done for now** — end the workflow | Always |
 
 **When blocking questions remain:**
 - Ask the blocking questions now, one at a time, by default
@@ -258,6 +255,8 @@ Use `vscode/askQuestions` to present next steps. Only show options that apply:
 - If user wants to pause: present as paused/blocked
 
 Do not offer "Start Planning" while `Resolve Before Planning` remains non-empty.
+
+**After the user picks a next skill**, announce the handover and load the chosen skill. Example: "Loading `/plan` to create an implementation plan from the brainstorm."
 
 ### Step 7: Closing Summary
 
@@ -273,7 +272,7 @@ Key decisions:
 - [Decision 1]
 - [Decision 2]
 
-Recommended next step: cplan
+Recommended next step: /plan
 ```
 
 **Paused:**
@@ -286,15 +285,15 @@ Planning is blocked by:
 - [Blocking question 1]
 - [Blocking question 2]
 
-Resume cbrainstorm when ready to resolve these before planning.
+Resume /brainstorm when ready to resolve these before planning.
 ```
 
 ## Response Rules
 
 - Ask one question at a time
-- Do not ask clarifying questions in plain chat when `vscode/askQuestions` is available
-- When a response can be represented as options, prefer `vscode/askQuestions` over freeform chat
-- If a `vscode/askQuestions` call is cancelled, say so briefly before falling back to chat
+- Do not ask clarifying questions in plain chat when `#askQuestions` is available
+- When a response can be represented as options, prefer `#askQuestions` over freeform chat
+- If a `#askQuestions` call is cancelled, say so briefly before falling back to chat
 - When presenting approaches, use a consistent format so they're easy to compare
 - Say "Written to `docs/brainstorms/xxx.md`" — don't repeat the full brainstorm in chat
 - Keep chat responses under 500 words

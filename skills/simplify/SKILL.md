@@ -1,18 +1,16 @@
 ---
-name: csimplify
-description: "Review changed code for reuse, quality, and efficiency — fix issues before review"
+name: simplify
+description: "Review changed code for reuse, quality, and efficiency — fix issues before review. Use when the user says 'simplify', 'clean up', 'review the code', or wants to improve code quality before formal review."
 argument-hint: "Leave empty to review current changes"
-agents: ['cexplore']
-handoffs:
-  - label: "Review Changes"
-    agent: creview
-    prompt: "Review the changes. Read docs/plans/.latest for context on what was implemented."
-    send: true
 ---
 
 # Simplify: Code Review and Cleanup
 
 Review all changed files for reuse, quality, and efficiency. Fix any issues found.
+
+## Subagents
+
+This skill uses the `cexplore` subagent and launches three parallel review subagents for code analysis.
 
 ## Phase 1: Understand Context and Identify Changes
 
@@ -59,6 +57,17 @@ Wait for all three agents to complete. Aggregate their findings and fix each iss
 
 After fixing, commit the cleanup as a single commit: `refactor: simplify and clean up implementation`
 
-## Phase 4: Summary
+## Phase 4: Handover
 
-When done, briefly summarize what was fixed (or confirm the code was already clean). Then hand off to creview.
+When done, briefly summarize what was fixed (or confirm the code was already clean).
+
+Use `#askQuestions` to ask what the user wants to do next:
+
+| Option | When to show |
+|--------|-------------|
+| **Review Changes (Recommended)** — hand off to `creview` agent for formal code review | Always (default) |
+| **Ship It** — load the `/git-commit-push-pr` skill to create a PR | When changes are minor/low-risk |
+| **Document Learnings** — load the `/compound` skill | When non-trivial patterns were discovered |
+| **Done** — end the workflow | Always |
+
+**After the user picks a next skill**, announce the handover and load the chosen skill.

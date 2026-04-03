@@ -1,11 +1,10 @@
 ---
-name: ccompound
-description: "Document a solved problem as reusable institutional knowledge with parallel research"
+name: compound
+description: "Document a solved problem as reusable institutional knowledge with parallel research. Use when the user says 'document this', 'compound', 'save learnings', or wants to capture a solution for future reference."
 argument-hint: "Brief context about the problem you just solved (optional)"
-agents: ['cexplore', 'clearnings']
 ---
 
-# Compound Agent
+# Compound
 
 Coordinate multiple subagents working in parallel to document a recently solved problem. Creates structured documentation in `docs/solutions/` with YAML frontmatter for searchability and future reference.
 
@@ -18,13 +17,24 @@ Coordinate multiple subagents working in parallel to document a recently solved 
 - After discovering a useful pattern or workaround
 - After a code review surfaces important learnings
 
+## Subagents
+
+This skill dispatches these subagents in parallel:
+- `cexplore` — codebase context analysis
+- `clearnings` — searches `docs/solutions/` for related documentation
+
 ## Support Files
 
 These files are the durable contract for the workflow. Read them on-demand at the step that needs them — do not bulk-load at skill start.
 
-- `docs/solutions/references/schema.yaml` — canonical frontmatter fields and enum values (read when validating YAML)
-- `docs/solutions/references/yaml-schema.md` — category mapping from problem_type to directory (read when classifying)
-- `docs/solutions/assets/resolution-template.md` — section structure for new docs (read when assembling)
+**Skill-local references** (always available alongside this skill):
+- `compound.references/category-guide.md` — category mapping, required frontmatter, validation rules, filename conventions (read when classifying)
+- `compound.references/solution-template.md` — section structure for bug track and knowledge track docs (read when assembling)
+
+**Project-level references** (created by installer, may not exist in all projects):
+- `docs/solutions/references/schema.yaml` — canonical frontmatter fields and enum values (read when validating YAML, fall back to category-guide.md if missing)
+- `docs/solutions/references/yaml-schema.md` — category mapping from problem_type to directory (fall back to category-guide.md if missing)
+- `docs/solutions/assets/resolution-template.md` — section structure for new docs (fall back to solution-template.md if missing)
 
 When spawning subagents, pass the relevant file contents into the task prompt so they have the contract without needing cross-skill paths.
 
@@ -95,7 +105,7 @@ Launch these subagents **in parallel**. Each returns text data to the orchestrat
 
 **Wait for all Phase 1 subagents to complete before proceeding.**
 
-The orchestrating agent performs these steps:
+The orchestrating skill performs these steps:
 
 1. Collect all text results from Phase 1 subagents
 2. **Check the overlap assessment** from the Related Docs Finder before deciding what to write:
@@ -133,9 +143,9 @@ It does **not** make sense when:
 
 If stale candidates are found, inform the user and suggest which specific docs may need updating.
 
-### Phase 4: Present Summary
+### Phase 4: Handover
 
-After writing the doc, present:
+After writing the doc, present a summary:
 
 ```
 Documentation complete:
@@ -149,29 +159,18 @@ File created/updated:
 - docs/solutions/[category]/[filename].md
 
 This will be searchable for future reference when similar issues occur.
-
-What's next?
-1. Continue workflow
-2. Link related documentation
-3. Update other references
-4. View documentation
-5. Other
 ```
 
-Wait for the user's response before proceeding.
+Use `#askQuestions` to ask what the user wants to do next:
 
-**Alternate output (when updating existing doc due to high overlap):**
+| Option | When to show |
+|--------|-------------|
+| **Ship It (Recommended)** — load the `/git-commit-push-pr` skill | When there's code to ship |
+| **Link related documentation** — update cross-references | When moderate overlap was found |
+| **Update other references** — refresh stale docs | When stale docs were flagged |
+| **Done** — end the workflow | Always |
 
-```
-Documentation updated (existing doc refreshed with current context):
-
-Overlap detected: docs/solutions/[category]/[existing-file].md
-  Matched dimensions: [list]
-  Action: Updated existing doc with fresher code examples and prevention tips
-
-File updated:
-- docs/solutions/[category]/[existing-file].md (added last_updated: YYYY-MM-DD)
-```
+**After the user picks a next skill**, announce the handover and load the chosen skill.
 
 ## Guidelines
 

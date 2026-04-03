@@ -1,19 +1,12 @@
 ---
-name: cdeepen
-description: "Enhance an existing plan with parallel research agents for depth, best practices, and implementation details"
+name: deepen
+description: "Enhance an existing plan with parallel research agents for depth, best practices, and implementation details. Use when the user says 'deepen the plan', 'research more', or when a plan has high-risk dimensions that need more investigation."
 argument-hint: "Path to plan file (or reads from docs/plans/.latest)"
-tools: ['search', 'web/fetch', 'agent', 'edit']
-agents: ['cexplore', 'cdocs', 'cgithistory', 'clearnings', 'cbestpractices']
-handoffs:
-  - label: "Start Implementation"
-    agent: cwork
-    prompt: "Read and implement the plan listed in docs/plans/.latest"
-    send: true
 ---
 
-# Deepen Plan Agent
+# Deepen Plan
 
-Take an existing plan (from `cplan`) and enhance each section with parallel research agents. Each major element gets its own dedicated research sub-agent to find:
+Take an existing plan (from `/plan`) and enhance each section with parallel research agents. Each major element gets its own dedicated research sub-agent to find:
 - Best practices and industry patterns
 - Performance optimizations
 - UI/UX improvements (if applicable)
@@ -21,6 +14,17 @@ Take an existing plan (from `cplan`) and enhance each section with parallel rese
 - Real-world implementation examples
 
 The result is a deeply grounded, production-ready plan with concrete implementation details.
+
+## Subagents
+
+This skill dispatches these research subagents in parallel:
+- `cexplore` — codebase patterns and conventions
+- `cdocs` — external documentation via Context7 MCP
+- `cgithistory` — git history analysis
+- `clearnings` — past solutions from `docs/solutions/`
+- `cbestpractices` — industry standards and community patterns
+
+It also launches all available `*-reviewer` agents against the plan content.
 
 ## Workflow
 
@@ -143,14 +147,21 @@ At the top of the plan, add:
 - [Important finding 2]
 ```
 
-### Step 7: Write and Present
+### Step 7: Handover
 
 1. Update the plan file in place
 2. Present a brief summary of what was added
-3. Offer options:
-   - **Start Implementation** → hand off to `cwork` agent
-   - **Deepen further** → re-run research on specific sections
-   - **Review and refine** → iterate on specific sections
+
+Use `#askQuestions` to ask what the user wants to do next:
+
+| Option | When to show |
+|--------|-------------|
+| **Start Implementation (Recommended)** — load the `/work` skill | Always (default) |
+| **Write Tests First (TDD)** — load the `/test` skill | Always |
+| **Deepen further** — re-run research on specific sections | Always |
+| **Review and refine** — iterate on specific sections | Always |
+
+**After the user picks a next skill**, announce the handover and load the chosen skill.
 
 ## Response Rules
 

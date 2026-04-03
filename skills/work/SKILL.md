@@ -1,22 +1,23 @@
 ---
-name: cwork
-description: "Execute an implementation plan step by step with testing and commits"
+name: work
+description: "Execute an implementation plan step by step with testing and commits. Use when the user says 'implement this', 'build this', 'start working', 'execute the plan', or wants to turn a plan into working code."
 argument-hint: "Path to plan file or describe what to implement"
-agents: ['cexplore']
-handoffs:
-  - label: "Write Tests"
-    agent: ctest
-    prompt: "Read the plan in docs/plans/.latest and write tests for the implementation. Code already exists — verify it works."
-    send: true
-  - label: "Simplify Code"
-    agent: csimplify
-    prompt: "Review and clean up the changed code. Read docs/plans/.latest for context."
-    send: true
 ---
 
-# Work Agent
+# Work
 
 Execute implementation plans efficiently while maintaining quality and shipping complete features.
+
+## Subagents
+
+This skill uses the `cexplore` subagent for codebase pattern research during implementation.
+
+## Support Files
+
+Read these on-demand at the step that needs them — do not bulk-load at start:
+
+- `work.references/execution-strategies.md` — inline vs sequential vs parallel execution (read at Phase 1, Step 3)
+- `work.references/quality-checklist.md` — pre-ship checklist and code review tiers (read at Phase 3)
 
 ## Workflow
 
@@ -45,11 +46,18 @@ Check the current branch:
 - **If on the default branch**: create a feature branch with a meaningful name (e.g., `feat/user-authentication`, `fix/email-validation`)
 - **Never commit directly to the default branch** without explicit user permission
 
-#### 3. Break Down Tasks
+#### 3. Break Down Tasks and Choose Strategy
+
+**Read `work.references/execution-strategies.md`** to select the right approach.
+
 - Break the plan into actionable tasks
 - Prioritize based on dependencies
 - Include testing tasks
 - Keep tasks specific and completable
+- **Choose execution strategy:**
+  - 1-2 tasks -> inline (execute directly)
+  - 3+ independent tasks -> parallel subagents
+  - 3+ dependent tasks -> sequential subagents
 
 ### Phase 2: Execute
 
@@ -63,7 +71,7 @@ For each task in priority order:
 4. **If TDD tests exist:** run them to check which pass now — focus on making the next failing test green
 5. **If no TDD tests:** write tests for new functionality
 6. Run tests after changes
-7. Check off the corresponding item in the plan file (`- [ ]` → `- [x]`)
+7. Check off the corresponding item in the plan file (`- [ ]` -> `- [x]`)
 8. Evaluate for incremental commit
 
 #### Incremental Commits
@@ -74,7 +82,7 @@ After completing each logical unit, evaluate whether to commit:
 |----------------|---------------------|
 | Logical unit complete (model, service, component) | Small part of a larger unit |
 | Tests pass + meaningful progress | Tests failing |
-| About to switch contexts (backend → frontend) | Purely scaffolding with no behavior |
+| About to switch contexts (backend -> frontend) | Purely scaffolding with no behavior |
 | About to attempt risky/uncertain changes | Would need a "WIP" commit message |
 
 **Heuristic:** "Can I write a commit message that describes a complete, valuable change? If yes, commit."
@@ -97,16 +105,34 @@ Commit workflow:
 
 ### Phase 3: Quality Check
 
+**Read `work.references/quality-checklist.md`** and run through the pre-ship checklist.
+
 1. Run the full test suite
 2. Run linting (per project conventions)
 3. Verify all plan tasks are checked off
 4. Ensure code follows existing patterns
+5. **Determine review tier:**
+   - **Tier 1 (self-review):** purely additive, single concern, pattern-following, plan-faithful -> ship
+   - **Tier 2 (full review, default):** everything else -> recommend review
 
-### Phase 4: Ship It
+### Phase 4: Handover
+
+After implementation is complete:
 
 1. Create a final commit if uncommitted work remains
 2. Push to remote
-3. **Hand off to review** via the "Review Changes" button
+
+Use `#askQuestions` to ask what the user wants to do next:
+
+| Option | When to show |
+|--------|-------------|
+| **Simplify Code (Recommended)** — load the `/simplify` skill | Always (default) |
+| **Write Tests** — load the `/test` skill for post-implementation verification | When no TDD tests were pre-written |
+| **Review Changes** — hand off to `creview` agent for code review | Always |
+| **Ship It** — load the `/git-commit-push-pr` skill to create a PR | When Tier 1 self-review is sufficient |
+| **Done** — end the workflow | Always |
+
+**After the user picks a next skill**, announce the handover and load the chosen skill.
 
 ## Key Principles
 
