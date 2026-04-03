@@ -50,7 +50,7 @@ Read more about the philosophy:
 ## Quick Start
 
 ```bash
-npx compound-copilot
+npx github:alexanderop/compound-copilot
 ```
 
 This copies agents into `.github/agents/` and skills into `.github/skills/` in your project. It also creates `docs/plans/`, `docs/tests/`, and `docs/solutions/` for pipeline artifacts. Existing files are not overwritten.
