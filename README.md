@@ -4,33 +4,35 @@
 [![npm version](https://img.shields.io/npm/v/compound-copilot)](https://www.npmjs.com/package/compound-copilot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Structured plan-work-review-compound loops for VS Code Copilot — zero extension code, just markdown agents.
+Structured plan-work-review-compound loops for VS Code Copilot — zero extension code, markdown skills and agents.
 
 ```
-@lfg Add webhook notifications when posts are published
+/lfg Add webhook notifications when posts are published
 ```
 
 ```
-  cbrainstorm ──→ cplan ──┬──→ ctest ──→ cwork ──┬──→ csimplify ──→ creview ──→ ccompound
-   (optional)       │     │   (optional)    │     │        │            │             │
-       │            ▼     │      │          ▼     │        ▼            ▼             ▼
+  /brainstorm ──→ /plan ──┬──→ /test ──→ /work ──┬──→ /simplify ──→ creview ──→ /compound
+   (optional)       │     │   (optional)    │     │        │           agent          │
+       │            ▼     │      │          ▼     │        ▼            │             ▼
     cexplore     cexplore │    write     cexplore │     reuse       security      cexplore
     cdocs        research │    tests     patterns │     quality     refactoring   document
     dialogue     learnings│    (red or   make     │     efficiency  architecture  learnings
                  docs     │    verify)   green    │     fix         custom...
                  cspecflow│              commits  │                     │
                  (1.5)    │                       │                     ▼
-                          └───── cwork ───────────┘           docs/solutions/
+                          └───── /work ───────────┘           docs/solutions/
                             (skip tests)    (test after)     ◄── fed back into future plans
 ```
+
+Skills ask what you want to do next after each step — pick the suggested option or choose your own path.
 
 ## Table of Contents
 
 - [Why](#why)
 - [Quick Start](#quick-start)
 - [Usage](#usage)
-- [Agents](#agents)
 - [Skills](#skills)
+- [Agents](#agents)
 - [How It Works](#how-it-works)
 - [Adding Custom Reviewers](#adding-custom-reviewers)
 - [Development](#development)
@@ -39,7 +41,7 @@ Structured plan-work-review-compound loops for VS Code Copilot — zero extensio
 
 ## Why
 
-VS Code Copilot has its own agent system (`.agent.md` files, subagents, handoffs) but no structured workflow for plan-work-review loops. This project brings the [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin) workflow — originally a Claude Code plugin by [Every](https://every.to) — to Copilot as pure markdown agents.
+VS Code Copilot has its own agent system (`.agent.md` files, subagents, handoffs) but no structured workflow for plan-work-review loops. This project brings the [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin) workflow — originally a Claude Code plugin by [Every](https://every.to) — to Copilot as pure markdown skills and agents.
 
 No extension code. No runtime dependencies. Works with any model Copilot supports.
 
@@ -61,35 +63,42 @@ Requires VS Code 1.109+ with GitHub Copilot.
 
 ### Full pipeline
 
-Run all five stages in one go:
+Run all stages in one go:
 
 ```
-@lfg Add user authentication with OAuth
+/lfg Add user authentication with OAuth
 ```
 
 This plans the feature, writes failing tests (TDD), implements to make them pass, simplifies the code, runs parallel reviews, and documents what was learned.
 
-### Individual agents
+### Individual skills
 
-Use agents independently when you don't need the full loop:
+Use skills independently when you don't need the full loop. Each skill asks what you want to do next when it finishes:
 
 ```
-@cbrainstorm Add rate limiting to the API    # explore approaches first
-@cplan Add rate limiting to the API          # research & plan
-@ctest                                       # write tests from plan (before or after code)
-@cwork docs/plans/2026-04-03-feat-rate-limiting-plan.md   # execute a plan
-@csimplify                                   # clean up changed code
+/brainstorm Add rate limiting to the API     # explore approaches first
+/plan Add rate limiting to the API           # research & plan
+/test                                        # write tests from plan (before or after code)
+/work docs/plans/2026-04-03-feat-rate-limiting-plan.md   # execute a plan
+/simplify                                    # clean up changed code
+/compound                                    # document learnings
+```
+
+For code review, use the `creview` agent directly (it runs reviewers in isolated context):
+
+```
 @creview 42                                  # review PR #42
-@ccompound                                   # document learnings
 ```
 
-Testing is flexible — use `ctest` before or after `cwork`:
+Testing is flexible — use `/test` before or after `/work`:
 
 ```
-@cplan → @ctest → @cwork → @csimplify       # TDD: tests first, then implement
-@cplan → @cwork → @ctest → @csimplify       # code first, then add tests
-@cplan → @cwork → @csimplify                 # skip tests entirely
+/plan → /test → /work → /simplify           # TDD: tests first, then implement
+/plan → /work → /test → /simplify           # code first, then add tests
+/plan → /work → /simplify                   # skip tests entirely
 ```
+
+Each `→` is a handover — the skill suggests the next step and you confirm.
 
 ### Scaffold a custom reviewer
 
@@ -97,22 +106,44 @@ Testing is flexible — use `ctest` before or after `cwork`:
 @create-agent Vue component reviewer
 ```
 
+## Skills
+
+Skills are the primary workflow interface. Each skill asks what you want to do next when it finishes, suggesting the logical next step. They live in `.github/skills/<name>/SKILL.md`.
+
+### Workflow skills
+
+| Skill | What it does | Suggests next |
+|-------|-------------|---------------|
+| `/brainstorm` | Explores requirements through dialogue, generates approaches with trade-offs, writes to `docs/brainstorms/` | `/plan` |
+| `/plan` | Dispatches research subagents in parallel, asks clarifying questions, writes a plan to `docs/plans/` | `/test` or `/work` |
+| `/test` | Writes tests from the plan's acceptance criteria — TDD red phase or post-implementation verification | `/work` or `/simplify` |
+| `/work` | Reads the plan, creates a branch, implements step by step — makes pre-written tests green or writes new ones | `/simplify` or review |
+| `/simplify` | Diffs changed files, launches 3 parallel reviewers (reuse, quality, efficiency), fixes issues directly | review or ship |
+| `/compound` | Documents non-trivial problems into `docs/solutions/` for future reference | ship |
+| `/deepen` | Enhances an existing plan with parallel research for depth, best practices, and edge cases | `/work` or `/test` |
+| `/lfg` | Autonomous end-to-end pipeline — runs all stages without asking between steps | — |
+
+### Utility skills
+
+| Skill | What it does |
+|-------|-------------|
+| `/git-commit` | Creates well-crafted commits following repo conventions |
+| `/git-commit-push-pr` | Commits, pushes, and opens a PR in one step |
+| `/git-worktree` | Manages Git worktrees for isolated parallel development |
+| `/create-agent` | Scaffolds new `.agent.md` files with correct Copilot frontmatter |
+
 ## Agents
 
-### Orchestrators (user-facing)
+Agents are reserved for tasks that need isolated execution context — parallel reviewer dispatch and read-only subagents.
+
+### Orchestrators
 
 | Agent | What it does |
 |-------|-------------|
-| `cbrainstorm` | Explores requirements through dialogue, generates approaches with trade-offs, writes brainstorm to `docs/brainstorms/` |
-| `cplan` | Dispatches research subagents in parallel (including spec-flow analysis for Standard/Comprehensive plans), asks clarifying questions, writes a plan to `docs/plans/` |
-| `ctest` | Writes tests from the plan's acceptance criteria — before implementation (TDD red phase) or after (verification) |
-| `cwork` | Reads the plan, creates a branch, implements step by step — makes pre-written tests green or writes new ones |
-| `csimplify` | Diffs changed files, launches 3 parallel reviewers (reuse, quality, efficiency), fixes issues directly |
 | `creview` | Dispatches security, refactoring, and architecture reviewers in parallel; auto-discovers custom reviewers |
-| `ccompound` | Documents non-trivial problems into `docs/solutions/` for future reference |
 | `create-agent` | Scaffolds new `.agent.md` files with correct Copilot frontmatter |
 
-### Subagents (dispatched by orchestrators)
+### Subagents (dispatched by skills and agents)
 
 | Agent | What it does |
 |-------|-------------|
@@ -120,20 +151,16 @@ Testing is flexible — use `ctest` before or after `cwork`:
 | `clearnings` | Searches `docs/solutions/` for past fixes and gotchas |
 | `cdocs` | Fetches current library/framework documentation (Context7, llms.txt, DeepWiki) |
 | `cgithistory` | Traces file evolution, code origin, contributor mapping via git history |
+| `cbestpractices` | Researches industry standards, community conventions, and recommended patterns |
+| `cspecflow` | Analyzes specs for user flow completeness, edge cases, and requirement gaps |
+
+### Reviewers (dispatched by `creview`)
+
+| Agent | What it does |
+|-------|-------------|
 | `security-reviewer` | Hunts injection vectors, auth bypasses, hardcoded secrets, SSRF |
 | `refactoring-reviewer` | Detects code smells using Martin Fowler's refactoring patterns |
 | `architecture-reviewer` | Evaluates boundaries, dependencies, coupling, SOLID principles |
-| `cspecflow` | Analyzes specs for user flow completeness, edge cases, and requirement gaps (called by `cplan` Phase 1.5) |
-
-## Skills
-
-| Skill | What it does |
-|-------|-------------|
-| `lfg` | Runs the full pipeline: plan, test, implement, simplify, review, compound |
-| `create-agent` | Scaffolds new agents via skill interface |
-| `agent-guide` | Interactive reference for the VS Code Copilot agent format — frontmatter, tools, handoffs, and patterns |
-
-Skills are workflow recipes that compose agents into higher-level sequences. They live in `.github/skills/<name>/SKILL.md`.
 
 ## How It Works
 
@@ -146,23 +173,23 @@ The workaround: every agent reads input from disk and writes output to disk. Cha
 ### Context flow
 
 ```
-cbrainstorm writes → docs/brainstorms/.latest  (pointer to brainstorm — optional)
-cplan reads        ← docs/brainstorms/.latest  (picks up brainstorm if it exists)
-cspecflow writes   → docs/specflows/.latest    (flow analysis — called by cplan Phase 1.5)
-cplan writes       → docs/plans/.latest        (pointer to current plan)
-ctest reads        ← docs/plans/.latest        (writes tests — optional, before or after cwork)
-ctest writes       → docs/tests/.latest        (list of test file paths)
-cwork reads        ← docs/plans/.latest + docs/tests/.latest (if tests exist, makes them green)
-csimplify reads    ← docs/plans/.latest        (diffs + fixes changed code)
+/brainstorm writes → docs/brainstorms/.latest  (pointer to brainstorm — optional)
+/plan reads        ← docs/brainstorms/.latest  (picks up brainstorm if it exists)
+cspecflow writes   → docs/specflows/.latest    (flow analysis — called by /plan Phase 1.5)
+/plan writes       → docs/plans/.latest        (pointer to current plan)
+/test reads        ← docs/plans/.latest        (writes tests — optional, before or after /work)
+/test writes       → docs/tests/.latest        (list of test file paths)
+/work reads        ← docs/plans/.latest + docs/tests/.latest (if tests exist, makes them green)
+/simplify reads    ← docs/plans/.latest        (diffs + fixes changed code)
 creview writes     → docs/reviews/.latest      (pointer to review report)
-ccompound reads    ← docs/plans/.latest + docs/reviews/.latest
+/compound reads    ← docs/plans/.latest + docs/reviews/.latest
 ```
 
 The `.latest` files are single-line pointers containing the path to the most recent artifact. They are gitignored — ephemeral pipeline state, not project artifacts.
 
 ### Knowledge compounding
 
-The `ccompound` agent writes solutions to `docs/solutions/`. On future runs, `cplan` dispatches the `clearnings` subagent to search these files. Problems solved once are surfaced automatically in future planning — closing the knowledge loop.
+The `/compound` skill writes solutions to `docs/solutions/`. On future runs, `/plan` dispatches the `clearnings` subagent to search these files. Problems solved once are surfaced automatically in future planning — closing the knowledge loop.
 
 ## Adding Custom Reviewers
 
