@@ -1,0 +1,42 @@
+{
+  "name": "compound-copilot",
+  "version": "0.1.0",
+  "description": "Compound Engineering workflow for VS Code Copilot — plan, work, review, compound",
+  "type": "module",
+  "bin": {
+    "compound-copilot": "bin/install.js"
+  },
+  "simple-git-hooks": {
+    "commit-msg": "npx commitlint --edit $1"
+  },
+  "scripts": {
+    "validate": "node src/validate.js",
+    "prepare": "simple-git-hooks || true",
+    "release:patch": "npm version patch -m 'chore(release): %s' && git push --follow-tags",
+    "release:minor": "npm version minor -m 'chore(release): %s' && git push --follow-tags",
+    "release:major": "npm version major -m 'chore(release): %s' && git push --follow-tags"
+  },
+  "files": [
+    "agents/",
+    "skills/",
+    "bin/",
+    "src/"
+  ],
+  "engines": {
+    "node": ">=18.3.0"
+  },
+  "license": "MIT",
+  "keywords": [
+    "copilot",
+    "vscode",
+    "compound-engineering",
+    "code-review",
+    "ai-workflows",
+    "agents"
+  ],
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "simple-git-hooks": "^2.13.1"
+  }
+}

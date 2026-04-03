@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+
+# Pipeline pointer files (ephemeral state)
+docs/plans/.latest
+docs/reviews/.latest
