@@ -2,7 +2,6 @@
 name: ccompound
 description: "Document a solved problem as reusable institutional knowledge with parallel research"
 argument-hint: "Brief context about the problem you just solved (optional)"
-tools: ['*']
 agents: ['cexplore', 'clearnings']
 ---
 

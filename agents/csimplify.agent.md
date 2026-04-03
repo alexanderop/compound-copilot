@@ -2,7 +2,6 @@
 name: csimplify
 description: "Review changed code for reuse, quality, and efficiency — fix issues before review"
 argument-hint: "Leave empty to review current changes"
-tools: ['*']
 agents: ['cexplore']
 handoffs:
   - label: "Review Changes"
