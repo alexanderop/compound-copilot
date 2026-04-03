@@ -2,7 +2,6 @@
 name: cwork
 description: "Execute an implementation plan step by step with testing and commits"
 argument-hint: "Path to plan file or describe what to implement"
-tools: ['*']
 agents: ['cexplore']
 handoffs:
   - label: "Write Tests"
