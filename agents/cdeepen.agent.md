@@ -3,7 +3,7 @@ name: cdeepen
 description: "Enhance an existing plan with parallel research agents for depth, best practices, and implementation details"
 argument-hint: "Path to plan file (or reads from docs/plans/.latest)"
 tools: ['search', 'web/fetch', 'agent', 'edit']
-agents: ['cexplore', 'cdocs', 'cgithistory', 'clearnings']
+agents: ['cexplore', 'cdocs', 'cgithistory', 'clearnings', 'cbestpractices']
 handoffs:
   - label: "Start Implementation"
     agent: cwork
@@ -56,8 +56,12 @@ Section 2: [Title] - [Brief description of what to research]
 Launch research sub-agents in parallel for each major section:
 
 **For each section, spawn a `cexplore` agent:**
-- Research best practices, patterns, and real-world examples for the section topic
-- Find industry standards and conventions
+- Research codebase patterns and conventions for the section topic
+- Find existing implementations and architecture decisions
+
+**Spawn `cbestpractices` for each major technology or pattern:**
+- Research industry standards and community conventions
+- Find recommended patterns, anti-patterns, and production guidance
 - Identify performance considerations and common pitfalls
 
 **For each technology/framework mentioned, spawn a `cdocs` agent:**

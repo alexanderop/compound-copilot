@@ -3,7 +3,7 @@ name: cbrainstorm
 description: "Explore requirements and approaches through collaborative dialogue before planning"
 argument-hint: "Describe the feature or problem to brainstorm"
 tools: ['search', 'web/fetch', 'agent', 'edit']
-agents: ['cexplore', 'cdocs']
+agents: ['cexplore', 'cdocs', 'cbestpractices']
 handoffs:
   - label: "Start Planning"
     agent: cplan
@@ -49,8 +49,9 @@ Launch research subagents to connect the brainstorm to the actual codebase:
 |-------|---------|
 | `cexplore` | Find existing code, patterns, and infrastructure relevant to this idea |
 | `cdocs` | Fetch documentation for libraries, APIs, or frameworks the idea might involve |
+| `cbestpractices` | Research industry standards and community conventions for the technologies involved |
 
-Pass both agents the feature description and key constraints from Step 1.
+Pass all agents the feature description and key constraints from Step 1.
 
 ### Step 3: Generate Approaches
 

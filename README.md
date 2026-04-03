@@ -18,8 +18,8 @@ Structured plan-work-review-compound loops for VS Code Copilot — zero extensio
     cdocs        research │    tests     patterns │     quality     refactoring   document
     dialogue     learnings│    (red or   make     │     efficiency  architecture  learnings
                  docs     │    verify)   green    │     fix         custom...
-                          │              commits  │                     │
-                          │                       │                     ▼
+                 cspecflow│              commits  │                     │
+                 (1.5)    │                       │                     ▼
                           └───── cwork ───────────┘           docs/solutions/
                             (skip tests)    (test after)     ◄── fed back into future plans
 ```
@@ -104,7 +104,7 @@ Testing is flexible — use `ctest` before or after `cwork`:
 | Agent | What it does |
 |-------|-------------|
 | `cbrainstorm` | Explores requirements through dialogue, generates approaches with trade-offs, writes brainstorm to `docs/brainstorms/` |
-| `cplan` | Dispatches 4 research subagents in parallel, asks clarifying questions, writes a plan to `docs/plans/` |
+| `cplan` | Dispatches research subagents in parallel (including spec-flow analysis for Standard/Comprehensive plans), asks clarifying questions, writes a plan to `docs/plans/` |
 | `ctest` | Writes tests from the plan's acceptance criteria — before implementation (TDD red phase) or after (verification) |
 | `cwork` | Reads the plan, creates a branch, implements step by step — makes pre-written tests green or writes new ones |
 | `csimplify` | Diffs changed files, launches 3 parallel reviewers (reuse, quality, efficiency), fixes issues directly |
@@ -123,6 +123,7 @@ Testing is flexible — use `ctest` before or after `cwork`:
 | `security-reviewer` | Hunts injection vectors, auth bypasses, hardcoded secrets, SSRF |
 | `refactoring-reviewer` | Detects code smells using Martin Fowler's refactoring patterns |
 | `architecture-reviewer` | Evaluates boundaries, dependencies, coupling, SOLID principles |
+| `cspecflow` | Analyzes specs for user flow completeness, edge cases, and requirement gaps (called by `cplan` Phase 1.5) |
 
 ## Skills
 
@@ -147,6 +148,7 @@ The workaround: every agent reads input from disk and writes output to disk. Cha
 ```
 cbrainstorm writes → docs/brainstorms/.latest  (pointer to brainstorm — optional)
 cplan reads        ← docs/brainstorms/.latest  (picks up brainstorm if it exists)
+cspecflow writes   → docs/specflows/.latest    (flow analysis — called by cplan Phase 1.5)
 cplan writes       → docs/plans/.latest        (pointer to current plan)
 ctest reads        ← docs/plans/.latest        (writes tests — optional, before or after cwork)
 ctest writes       → docs/tests/.latest        (list of test file paths)

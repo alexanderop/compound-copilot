@@ -3,7 +3,7 @@ name: cplan
 description: "Research the codebase and create a structured implementation plan"
 argument-hint: "Describe the feature, bug fix, or improvement to plan"
 tools: ['search', 'web/fetch', 'agent', 'edit']
-agents: ['cexplore', 'clearnings', 'cdocs', 'cgithistory']
+agents: ['cexplore', 'clearnings', 'cdocs', 'cgithistory', 'cbestpractices', 'cspecflow']
 handoffs:
   - label: "Write Tests First (TDD)"
     agent: ctest
@@ -39,20 +39,46 @@ Transform feature descriptions, bug reports, or improvement ideas into well-stru
 - Focus on: purpose, constraints, and success criteria
 - Continue until the idea is clear or user says "proceed"
 
-### Step 1: Research (Parallel)
+### Step 1: Choose Research Agents
 
-Launch all four research subagents in parallel: `cexplore`, `clearnings`, `cdocs`, `cgithistory`.
+Before launching research, decide which subagents are actually needed for this task. Not every task needs all agents.
 
-Pass each agent the feature description and any relevant context from Step 0. Each agent already knows its own purpose — do not override or redefine what they do.
+**Always run:**
+- `cexplore` — every task needs codebase context
+
+**Run when applicable:**
+| Agent | Run when… | Skip when… |
+|-------|-----------|------------|
+| `clearnings` | Task touches areas where past problems were documented, or the domain is complex | Simple rename, trivial config change |
+| `cdocs` | Task involves external libraries, APIs, or frameworks | Pure internal refactor with no external deps |
+| `cgithistory` | Task modifies code with unclear history, or you need to understand *why* something exists | Greenfield code, new files only |
+| `cbestpractices` | Task involves architectural decisions, new technology adoption, or patterns where industry guidance matters | Bug fixes, small UI tweaks, internal plumbing |
+
+Launch only the selected agents in parallel. Pass each agent the feature description and any relevant context from Step 0.
+
+### Step 1.5: Flow and Edge-Case Analysis (Conditional)
+
+For **Standard** or **Comprehensive** plans, or when the feature involves multiple user types, state machines, or multi-step workflows, run:
+
+- `cspecflow` — pass the feature description and research findings from Step 1
+
+Use the output to:
+- Identify missing edge cases, state transitions, or handoff gaps
+- Tighten acceptance criteria
+- Add only the flow details that materially improve the plan
+
+**Skip when:** Minimal/simple plans, pure refactors, or when the feature has a single linear flow with no branching.
+
+The spec-flow analysis is written to `docs/specflows/`. Reference it from the plan when relevant.
 
 ### Step 2: Research Decision
 
-Review findings from all subagents. Decide if more research is needed:
+Review findings from the agents you launched (and spec-flow analysis if run). Decide if more research is needed:
 
-- **Strong docs + strong local context** → proceed to planning
-- **Gaps on high-risk topics** (security, payments, auth, external APIs) → run `cdocs` again with targeted queries
+- **Gaps on high-risk topics** (security, payments, auth, external APIs) → run `cdocs` or `cbestpractices` with targeted queries
 - **Conflicting patterns found** → run `cgithistory` on specific files to understand why
-- **All clear** → announce findings briefly and proceed
+- **Critical spec-flow gaps found** → surface them as planning questions before proceeding
+- **Sufficient context** → announce findings briefly and proceed
 
 ### Step 3: Plan the Implementation
 
