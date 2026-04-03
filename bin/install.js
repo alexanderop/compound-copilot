@@ -26,7 +26,7 @@ mkdirSync(agentsTarget, { recursive: true });
 mkdirSync(skillsTarget, { recursive: true });
 
 // Scaffold docs directories so agents can write plans and solutions immediately
-const docsScaffold = ["docs/brainstorms", "docs/plans", "docs/reviews", "docs/solutions"];
+const docsScaffold = ["docs/brainstorms", "docs/plans", "docs/reviews", "docs/solutions", "docs/tests"];
 for (const dir of docsScaffold) {
   const dirPath = resolve(process.cwd(), dir);
   mkdirSync(dirPath, { recursive: true });

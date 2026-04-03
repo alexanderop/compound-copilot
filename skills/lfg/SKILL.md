@@ -39,15 +39,28 @@ Delegate to the `@cplan` subagent with the user's feature description.
 
 Present: "Plan ready. Review it and say 'go' to start implementation, or provide feedback to refine."
 
-### 2. Implement
+### 2. Write Tests First (TDD Red Phase)
+
+Delegate to the `@ctest` subagent.
+
+- The subagent reads the plan from `docs/plans/.latest`
+- It writes failing tests based on acceptance criteria and implementation tasks
+- It verifies all tests fail for the right reason (missing implementation, not bugs)
+- It commits the failing tests and writes test paths to `docs/tests/.latest`
+- Do NOT write tests yourself — that is ctest's job
+
+**Gate: Pause for user approval.** Present: "Failing tests written. Review them and say 'go' to start implementation, or provide feedback to adjust."
+
+### 3. Implement (TDD Green Phase)
 
 Delegate to the `@cwork` subagent.
 
 - Pass the plan path (read from `docs/plans/.latest`) to the subagent
-- The subagent creates a feature branch, implements step by step, runs tests, and makes incremental commits
+- The subagent detects existing tests from `docs/tests/.latest` and implements to make them pass
+- It creates a feature branch, implements step by step, and makes incremental commits
 - Do NOT write code yourself — that is cwork's job
 
-### 3. Simplify
+### 4. Simplify
 
 Delegate to the `@csimplify` subagent.
 
@@ -56,7 +69,7 @@ Delegate to the `@csimplify` subagent.
 - This reduces noise in the review step so reviewers can focus on real issues
 - Do NOT simplify code yourself — that is simplify's job
 
-### 4. Review
+### 5. Review
 
 Delegate to the `@creview` subagent.
 
@@ -65,7 +78,7 @@ Delegate to the `@creview` subagent.
 - It writes findings to `docs/reviews/` and updates `docs/reviews/.latest`
 - Do NOT review code yourself — that is creview's job
 
-### 5. Resolve
+### 6. Resolve
 
 If the review surfaces critical (P1) findings:
 - Read findings from `docs/reviews/.latest`
@@ -73,7 +86,7 @@ If the review surfaces critical (P1) findings:
 - The subagent addresses each finding, re-runs tests, and commits fixes
 - Do NOT fix issues yourself — delegate to cwork
 
-### 6. Compound
+### 7. Compound
 
 Delegate to the `@ccompound` subagent.
 
@@ -81,7 +94,7 @@ Delegate to the `@ccompound` subagent.
 - **Skip this step** if the work was straightforward with no unexpected issues
 - Do NOT write documentation yourself — that is ccompound's job
 
-### 7. Ship
+### 8. Ship
 
 - Push to remote
 - Create a pull request with summary, testing notes, and review findings

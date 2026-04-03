@@ -5,6 +5,10 @@ argument-hint: "Describe the feature, bug fix, or improvement to plan"
 tools: ['search', 'web/fetch', 'agent', 'edit']
 agents: ['cexplore', 'clearnings', 'cdocs', 'cgithistory']
 handoffs:
+  - label: "Write Tests First (TDD)"
+    agent: ctest
+    prompt: "Read the plan in docs/plans/.latest and write failing tests for the acceptance criteria"
+    send: true
   - label: "Start Implementation"
     agent: cwork
     prompt: "Read and implement the plan listed in docs/plans/.latest"
@@ -107,10 +111,11 @@ Include:
 
 After writing the plan, present options:
 
-1. **Start Implementation** → hand off to `cwork` agent
-2. **Deepen Plan** → hand off to `cdeepen` agent for research-backed enhancement
-3. **Review and refine** → iterate on the plan
-4. **Other** → accept feedback for specific changes
+1. **Write Tests First (TDD)** → hand off to `ctest` agent to write failing tests before implementation
+2. **Start Implementation** → hand off to `cwork` agent (skip TDD)
+3. **Deepen Plan** → hand off to `cdeepen` agent for research-backed enhancement
+4. **Review and refine** → iterate on the plan
+5. **Other** → accept feedback for specific changes
 
 ## Response Rules
 

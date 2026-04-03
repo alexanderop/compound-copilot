@@ -5,6 +5,10 @@ argument-hint: "Path to plan file or describe what to implement"
 tools: ['*']
 agents: ['cexplore']
 handoffs:
+  - label: "Write Tests"
+    agent: ctest
+    prompt: "Read the plan in docs/plans/.latest and write tests for the implementation. Code already exists — verify it works."
+    send: true
   - label: "Simplify Code"
     agent: csimplify
     prompt: "Review and clean up the changed code. Read docs/plans/.latest for context."
@@ -26,6 +30,14 @@ Execute implementation plans efficiently while maintaining quality and shipping 
 - If anything is unclear, ask clarifying questions now
 - Get user approval to proceed
 - **Do not skip this** — better to ask now than build the wrong thing
+
+#### 1b. Check for TDD Tests
+- Check if `docs/tests/.latest` exists
+- If it does, read it to get the list of pre-written failing test files
+- Read each test file to understand the expected behavior
+- **These tests define "done"** — your goal is to make them all pass
+- Announce: "Found [N] pre-written test files from TDD red phase. Implementation goal: make all tests green."
+- If no `docs/tests/.latest` exists, proceed normally — you'll write tests as part of implementation
 
 #### 2. Setup Environment
 
@@ -49,10 +61,11 @@ For each task in priority order:
 1. Read any referenced files from the plan
 2. Look for similar patterns in the codebase using the `cexplore` subagent
 3. Implement following existing conventions
-4. Write tests for new functionality
-5. Run tests after changes
-6. Check off the corresponding item in the plan file (`- [ ]` → `- [x]`)
-7. Evaluate for incremental commit
+4. **If TDD tests exist:** run them to check which pass now — focus on making the next failing test green
+5. **If no TDD tests:** write tests for new functionality
+6. Run tests after changes
+7. Check off the corresponding item in the plan file (`- [ ]` → `- [x]`)
+8. Evaluate for incremental commit
 
 #### Incremental Commits
 

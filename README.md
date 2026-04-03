@@ -11,16 +11,17 @@ Structured plan-work-review-compound loops for VS Code Copilot — zero extensio
 ```
 
 ```
-  cbrainstorm ──→ cplan ──→ cwork ──→ csimplify ──→ creview ──→ ccompound
-   (optional)       │         │          │            │             │
-       │            ▼         ▼          ▼            ▼             ▼
-    cexplore     cexplore  cexplore   reuse       security      cexplore
-    cdocs        research  patterns   quality     refactoring   document
-    dialogue     learnings commits    efficiency  architecture  learnings
-                 docs      tests      fix         custom...
-                                                      │
-                                                      ▼
-                                            docs/solutions/ ◄── fed back into future plans
+  cbrainstorm ──→ cplan ──┬──→ ctest ──→ cwork ──┬──→ csimplify ──→ creview ──→ ccompound
+   (optional)       │     │   (optional)    │     │        │            │             │
+       │            ▼     │      │          ▼     │        ▼            ▼             ▼
+    cexplore     cexplore │    write     cexplore │     reuse       security      cexplore
+    cdocs        research │    tests     patterns │     quality     refactoring   document
+    dialogue     learnings│    (red or   make     │     efficiency  architecture  learnings
+                 docs     │    verify)   green    │     fix         custom...
+                          │              commits  │                     │
+                          │                       │                     ▼
+                          └───── cwork ───────────┘           docs/solutions/
+                            (skip tests)    (test after)     ◄── fed back into future plans
 ```
 
 ## Table of Contents
@@ -52,7 +53,7 @@ Read more about the philosophy:
 npx compound-copilot
 ```
 
-This copies agents into `.github/agents/` and skills into `.github/skills/` in your project. It also creates `docs/plans/` and `docs/solutions/` for pipeline artifacts. Existing files are not overwritten.
+This copies agents into `.github/agents/` and skills into `.github/skills/` in your project. It also creates `docs/plans/`, `docs/tests/`, and `docs/solutions/` for pipeline artifacts. Existing files are not overwritten.
 
 Requires VS Code 1.109+ with GitHub Copilot.
 
@@ -66,7 +67,7 @@ Run all five stages in one go:
 @lfg Add user authentication with OAuth
 ```
 
-This plans the feature, implements it, simplifies the code, runs parallel reviews, and documents what was learned.
+This plans the feature, writes failing tests (TDD), implements to make them pass, simplifies the code, runs parallel reviews, and documents what was learned.
 
 ### Individual agents
 
@@ -75,10 +76,19 @@ Use agents independently when you don't need the full loop:
 ```
 @cbrainstorm Add rate limiting to the API    # explore approaches first
 @cplan Add rate limiting to the API          # research & plan
+@ctest                                       # write tests from plan (before or after code)
 @cwork docs/plans/2026-04-03-feat-rate-limiting-plan.md   # execute a plan
 @csimplify                                   # clean up changed code
 @creview 42                                  # review PR #42
 @ccompound                                   # document learnings
+```
+
+Testing is flexible — use `ctest` before or after `cwork`:
+
+```
+@cplan → @ctest → @cwork → @csimplify       # TDD: tests first, then implement
+@cplan → @cwork → @ctest → @csimplify       # code first, then add tests
+@cplan → @cwork → @csimplify                 # skip tests entirely
 ```
 
 ### Scaffold a custom reviewer
@@ -95,7 +105,8 @@ Use agents independently when you don't need the full loop:
 |-------|-------------|
 | `cbrainstorm` | Explores requirements through dialogue, generates approaches with trade-offs, writes brainstorm to `docs/brainstorms/` |
 | `cplan` | Dispatches 4 research subagents in parallel, asks clarifying questions, writes a plan to `docs/plans/` |
-| `cwork` | Reads the plan, creates a branch, implements step by step with tests and commits |
+| `ctest` | Writes tests from the plan's acceptance criteria — before implementation (TDD red phase) or after (verification) |
+| `cwork` | Reads the plan, creates a branch, implements step by step — makes pre-written tests green or writes new ones |
 | `csimplify` | Diffs changed files, launches 3 parallel reviewers (reuse, quality, efficiency), fixes issues directly |
 | `creview` | Dispatches security, refactoring, and architecture reviewers in parallel; auto-discovers custom reviewers |
 | `ccompound` | Documents non-trivial problems into `docs/solutions/` for future reference |
@@ -117,8 +128,9 @@ Use agents independently when you don't need the full loop:
 
 | Skill | What it does |
 |-------|-------------|
-| `lfg` | Runs the full pipeline: plan, implement, simplify, review, compound |
+| `lfg` | Runs the full pipeline: plan, test, implement, simplify, review, compound |
 | `create-agent` | Scaffolds new agents via skill interface |
+| `agent-guide` | Interactive reference for the VS Code Copilot agent format — frontmatter, tools, handoffs, and patterns |
 
 Skills are workflow recipes that compose agents into higher-level sequences. They live in `.github/skills/<name>/SKILL.md`.
 
@@ -136,7 +148,9 @@ The workaround: every agent reads input from disk and writes output to disk. Cha
 cbrainstorm writes → docs/brainstorms/.latest  (pointer to brainstorm — optional)
 cplan reads        ← docs/brainstorms/.latest  (picks up brainstorm if it exists)
 cplan writes       → docs/plans/.latest        (pointer to current plan)
-cwork reads        ← docs/plans/.latest
+ctest reads        ← docs/plans/.latest        (writes tests — optional, before or after cwork)
+ctest writes       → docs/tests/.latest        (list of test file paths)
+cwork reads        ← docs/plans/.latest + docs/tests/.latest (if tests exist, makes them green)
 csimplify reads    ← docs/plans/.latest        (diffs + fixes changed code)
 creview writes     → docs/reviews/.latest      (pointer to review report)
 ccompound reads    ← docs/plans/.latest + docs/reviews/.latest
