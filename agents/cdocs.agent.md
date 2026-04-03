@@ -2,7 +2,7 @@
 name: cdocs
 description: "Fetch current documentation for libraries, frameworks, and APIs — auto-detects best source"
 user-invocable: false
-tools: ['web/fetch', 'search/codebase', 'read/readFile']
+tools: ['web/fetch', 'search/codebase', 'read/readFile', 'context7/*']
 ---
 
 # Documentation Research Agent

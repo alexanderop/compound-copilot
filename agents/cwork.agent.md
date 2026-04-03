@@ -7,7 +7,7 @@ agents: ['cexplore']
 handoffs:
   - label: "Simplify Code"
     agent: csimplify
-    prompt: "/clear Review and clean up the changed code. Read docs/plans/.latest for context."
+    prompt: "Review and clean up the changed code. Read docs/plans/.latest for context."
     send: true
 ---
 

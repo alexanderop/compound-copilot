@@ -4,6 +4,8 @@ import { cpSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:
 import { resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+const force = process.argv.includes("--force") || process.argv.includes("-f");
+
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const agentsSrc = resolve(__dirname, "..", "agents");
 const skillsSrc = resolve(__dirname, "..", "skills");
@@ -24,7 +26,7 @@ mkdirSync(agentsTarget, { recursive: true });
 mkdirSync(skillsTarget, { recursive: true });
 
 // Scaffold docs directories so agents can write plans and solutions immediately
-const docsScaffold = ["docs/brainstorms", "docs/plans", "docs/solutions"];
+const docsScaffold = ["docs/brainstorms", "docs/plans", "docs/reviews", "docs/solutions"];
 for (const dir of docsScaffold) {
   const dirPath = resolve(process.cwd(), dir);
   mkdirSync(dirPath, { recursive: true });
@@ -36,35 +38,41 @@ for (const dir of docsScaffold) {
 
 let copied = 0;
 let skipped = 0;
+let updated = 0;
 
 // Install agents
 for (const file of agentFiles) {
   const dest = join(agentsTarget, file);
-  if (existsSync(dest)) {
+  if (existsSync(dest) && !force) {
     console.log(`  skip  agents/${file} (already exists)`);
     skipped++;
   } else {
+    const label = existsSync(dest) ? "update" : "copy";
     cpSync(join(agentsSrc, file), dest);
-    console.log(`  copy  agents/${file}`);
-    copied++;
+    console.log(`  ${label}  agents/${file}`);
+    if (label === "update") updated++;
+    else copied++;
   }
 }
 
 // Install skills
 for (const dir of skillDirs) {
   const dest = join(skillsTarget, dir, "SKILL.md");
-  if (existsSync(dest)) {
+  if (existsSync(dest) && !force) {
     console.log(`  skip  skills/${dir}/SKILL.md (already exists)`);
     skipped++;
   } else {
+    const label = existsSync(dest) ? "update" : "copy";
     mkdirSync(join(skillsTarget, dir), { recursive: true });
     cpSync(join(skillsSrc, dir, "SKILL.md"), dest);
-    console.log(`  copy  skills/${dir}/SKILL.md`);
-    copied++;
+    console.log(`  ${label}  skills/${dir}/SKILL.md`);
+    if (label === "update") updated++;
+    else copied++;
   }
 }
 
-console.log(
-  `\nDone — ${copied} file${copied === 1 ? "" : "s"} installed to .github/` +
-    (skipped > 0 ? ` (${skipped} skipped)` : "")
-);
+const parts = [];
+if (copied > 0) parts.push(`${copied} installed`);
+if (updated > 0) parts.push(`${updated} updated`);
+if (skipped > 0) parts.push(`${skipped} skipped`);
+console.log(`\nDone — ${parts.join(", ")} in .github/`);

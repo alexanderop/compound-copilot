@@ -7,7 +7,7 @@ agents: ['*']
 handoffs:
   - label: "Document Learnings"
     agent: ccompound
-    prompt: "/clear Document learnings from the review at docs/reviews/.latest and the plan at docs/plans/.latest"
+    prompt: "Document learnings from the review at docs/reviews/.latest and the plan at docs/plans/.latest"
     send: true
 ---
 

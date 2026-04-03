@@ -7,7 +7,7 @@ agents: ['cexplore', 'cdocs']
 handoffs:
   - label: "Start Planning"
     agent: cplan
-    prompt: "/clear Read the brainstorm in docs/brainstorms/.latest and create an implementation plan"
+    prompt: "Read the brainstorm in docs/brainstorms/.latest and create an implementation plan"
     send: true
 ---
 

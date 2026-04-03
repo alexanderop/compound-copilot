@@ -7,7 +7,7 @@ agents: ['cexplore']
 handoffs:
   - label: "Review Changes"
     agent: creview
-    prompt: "/clear Review the changes. Read docs/plans/.latest for context on what was implemented."
+    prompt: "Review the changes. Read docs/plans/.latest for context on what was implemented."
     send: true
 ---
 

@@ -7,7 +7,11 @@ agents: ['cexplore', 'clearnings', 'cdocs', 'cgithistory']
 handoffs:
   - label: "Start Implementation"
     agent: cwork
-    prompt: "/clear Read and implement the plan listed in docs/plans/.latest"
+    prompt: "Read and implement the plan listed in docs/plans/.latest"
+    send: true
+  - label: "Deepen Plan"
+    agent: cdeepen
+    prompt: "Deepen the plan listed in docs/plans/.latest"
     send: true
 ---
 
@@ -33,16 +37,9 @@ Transform feature descriptions, bug reports, or improvement ideas into well-stru
 
 ### Step 1: Research (Parallel)
 
-Launch **all four** research subagents in parallel:
+Launch all four research subagents in parallel: `cexplore`, `clearnings`, `cdocs`, `cgithistory`.
 
-| Agent | Purpose |
-|-------|---------|
-| `cexplore` | Codebase structure, conventions, patterns, technology stack |
-| `clearnings` | Past solutions and institutional knowledge from `docs/solutions/` |
-| `cdocs` | External documentation for libraries/frameworks/APIs involved |
-| `cgithistory` | Git history context — why code is the way it is, recent activity in relevant areas |
-
-Pass each agent the feature description and any relevant context from Step 0.
+Pass each agent the feature description and any relevant context from Step 0. Each agent already knows its own purpose — do not override or redefine what they do.
 
 ### Step 2: Research Decision
 
@@ -111,8 +108,9 @@ Include:
 After writing the plan, present options:
 
 1. **Start Implementation** → hand off to `cwork` agent
-2. **Review and refine** → iterate on the plan
-3. **Other** → accept feedback for specific changes
+2. **Deepen Plan** → hand off to `cdeepen` agent for research-backed enhancement
+3. **Review and refine** → iterate on the plan
+4. **Other** → accept feedback for specific changes
 
 ## Response Rules
 

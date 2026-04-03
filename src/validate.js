@@ -33,6 +33,9 @@ const SCHEMAS = {
     allowed: new Set([
       "name",
       "description",
+      "argument-hint",
+      "user-invocable",
+      "disable-model-invocation",
     ]),
     required: ["name", "description"],
   },
