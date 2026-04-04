@@ -11,17 +11,17 @@ Structured plan-work-review-compound loops for VS Code Copilot — zero extensio
 ```
 
 ```
-  /brainstorm ──→ /plan ──┬──→ /test ──→ /work ──┬──→ /simplify ──→ creview ──→ /compound
+  /brainstorm ──→ /cplan ──┬──→ /test ──→ /work ──┬──→ /simplify ──→ creview ──→ /compound
    (optional)       │     │   (optional)    │     │        │           agent          │
        │            ▼     │      │          ▼     │        ▼            │             ▼
     cexplore     cexplore │    write     cexplore │     reuse       security      cexplore
     cdocs        research │    tests     patterns │     quality     refactoring   document
     dialogue     learnings│    (red or   make     │     efficiency  architecture  learnings
                  docs     │    verify)   green    │     fix         custom...
-                 cspecflow│              commits  │                     │
-                 (1.5)    │                       │                     ▼
+                          │              commits  │                     │
                     │     └───── /work ───────────┘           docs/solutions/
                     ▼       (skip tests)    (test after)     ◄── fed back into future plans
+              cspecflow (optional)
               /document-review
               /deepen (optional)
                coherence
@@ -86,7 +86,7 @@ Use skills independently when you don't need the full loop. Each skill asks what
 
 ```
 /brainstorm Add rate limiting to the API     # explore approaches first
-/plan Add rate limiting to the API           # research & plan
+/cplan Add rate limiting to the API           # research & plan
 /document-review docs/plans/2026-04-03-*.md  # multi-persona plan review
 /deepen docs/plans/2026-04-03-*.md           # strengthen weak sections with research
 /test                                        # write tests from plan (before or after code)
@@ -104,9 +104,9 @@ For code review, use the `creview` agent directly (it runs reviewers in isolated
 Testing is flexible — use `/test` before or after `/work`:
 
 ```
-/plan → /test → /work → /simplify           # TDD: tests first, then implement
-/plan → /work → /test → /simplify           # code first, then add tests
-/plan → /work → /simplify                   # skip tests entirely
+/cplan → /test → /work → /simplify           # TDD: tests first, then implement
+/cplan → /work → /test → /simplify           # code first, then add tests
+/cplan → /work → /simplify                   # skip tests entirely
 ```
 
 Each `→` is a handover — the skill suggests the next step and you confirm.
@@ -125,13 +125,13 @@ Skills are the primary workflow interface. Each skill asks what you want to do n
 
 | Skill | What it does | Suggests next |
 |-------|-------------|---------------|
-| `/brainstorm` | Explores requirements through dialogue, generates approaches with trade-offs, writes to `docs/brainstorms/` | `/plan` |
-| `/plan` | Dispatches research subagents in parallel, asks clarifying questions, writes a plan to `docs/plans/` | `/test` or `/work` |
+| `/brainstorm` | Explores requirements through dialogue, generates approaches with trade-offs, writes to `docs/brainstorms/` | `/cplan` |
+| `/cplan` | Dispatches research subagents in parallel, asks clarifying questions, writes a plan to `docs/plans/` | `/test` or `/work` |
 | `/test` | Writes tests from the plan's acceptance criteria — TDD red phase or post-implementation verification | `/work` or `/simplify` |
 | `/work` | Reads the plan, creates a branch, implements step by step — makes pre-written tests green or writes new ones | `/simplify` or review |
 | `/simplify` | Diffs changed files, launches 3 parallel reviewers (reuse, quality, efficiency), fixes issues directly | review or ship |
 | `/compound` | Documents non-trivial problems into `docs/solutions/` for future reference | ship |
-| `/document-review` | Dispatches persona reviewers (coherence, feasibility, + conditional) against a plan or brainstorm; auto-fixes clear issues, presents the rest | `/plan` or `/work` |
+| `/document-review` | Dispatches persona reviewers (coherence, feasibility, + conditional) against a plan or brainstorm; auto-fixes clear issues, presents the rest | `/cplan` or `/work` |
 | `/deepen` | Scores plan sections for confidence gaps, dispatches targeted research, strengthens weak areas | `/work` or `/test` |
 | `/lfg` | Autonomous end-to-end pipeline — runs all stages without asking between steps | — |
 
@@ -199,9 +199,9 @@ The workaround: every agent reads input from disk and writes output to disk. Cha
 
 ```
 /brainstorm writes    → docs/brainstorms/.latest  (pointer to brainstorm — optional)
-/plan reads           ← docs/brainstorms/.latest  (picks up brainstorm if it exists)
-cspecflow writes      → docs/specflows/.latest    (flow analysis — called by /plan Phase 1.5)
-/plan writes          → docs/plans/.latest        (pointer to current plan)
+/cplan reads           ← docs/brainstorms/.latest  (picks up brainstorm if it exists)
+/cplan writes          → docs/plans/.latest        (pointer to current plan)
+cspecflow writes      → docs/specflows/.latest    (optional flow analysis — called by /cplan before finalizing)
 /document-review reads← docs/plans/.latest        (multi-persona plan review — optional)
 /deepen reads         ← docs/plans/.latest        (strengthen weak sections — optional)
 /test reads           ← docs/plans/.latest        (writes tests — optional, before or after /work)
@@ -216,7 +216,7 @@ The `.latest` files are single-line pointers containing the path to the most rec
 
 ### Knowledge compounding
 
-The `/compound` skill writes solutions to `docs/solutions/`. On future runs, `/plan` dispatches the `clearnings` subagent to search these files. Problems solved once are surfaced automatically in future planning — closing the knowledge loop.
+The `/compound` skill writes solutions to `docs/solutions/`. On future runs, `/cplan` dispatches the `clearnings` subagent to search these files. Problems solved once are surfaced automatically in future planning — closing the knowledge loop.
 
 ## Adding Custom Reviewers
 

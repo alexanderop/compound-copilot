@@ -1,14 +1,14 @@
 ---
-name: plan
+name: cplan
 description: "Research the codebase and create a structured implementation plan. Use when the user says 'plan this', 'create a plan', 'how should we implement', or wants to turn a feature description into a structured implementation plan."
 argument-hint: "Describe the feature, bug fix, or improvement to plan"
 ---
 
-# Plan
+# cplan
 
 Transform feature descriptions, bug reports, or improvement ideas into well-structured implementation plans.
 
-`/brainstorm` defines **WHAT** to build. `/plan` defines **HOW** to build it. `/work` executes the plan.
+`/brainstorm` defines **WHAT** to build. `/cplan` defines **HOW** to build it. `/work` executes the plan.
 
 This skill produces a durable implementation plan. It does **not** implement code, run tests, or learn from execution-time results.
 
@@ -20,15 +20,15 @@ This skill dispatches read-only research subagents in parallel during Step 1. Th
 - `clearnings` — past solutions from `docs/solutions/` (conditional)
 - `cdocs` — external documentation via Context7 MCP (conditional)
 - `cbestpractices` — industry standards and community patterns (conditional)
-- `cspecflow` — user flow completeness analysis (conditional)
+- `cspecflow` — user flow completeness analysis (optional, runs in Step 4 before finalizing)
 
 ## Support Files
 
 Read these on-demand at the step that needs them — do not bulk-load at start:
 
-- `plan.references/plan-template.md` — template structure with all sections and examples
-- `plan.references/depth-levels.md` — classification (Lightweight/Standard/Deep) with quality bar
-- `plan.references/section-mapping.md` — maps research findings to plan sections
+- `references/plan-template.md` — template structure with all sections and examples
+- `references/depth-levels.md` — classification (Lightweight/Standard/Deep) with quality bar
+- `references/section-mapping.md` — maps research findings to plan sections
 
 ## Workflow
 
@@ -83,21 +83,10 @@ Not every task needs all agents. Always run `cexplore`.
 
 Launch selected agents in parallel. Pass each the feature description and any origin document context.
 
-#### 1.2 Flow and Edge-Case Analysis (Conditional)
-
-For **Standard** or **Deep** plans, or when the feature involves multiple user types, state machines, or multi-step workflows, run:
-
-- `cspecflow` — pass the feature description and research findings from Step 1.1
-
-Use the output to identify missing edge cases, state transitions, or handoff gaps. The analysis is written to `docs/specflows/` — reference it from the plan when relevant.
-
-**Skip when:** Lightweight plans, pure refactors, or single linear flow with no branching.
-
-#### 1.3 Review and Fill Gaps
+#### 1.2 Review and Fill Gaps
 
 Review all findings. If gaps remain:
 - **High-risk topic gaps** — run `cdocs` or `cbestpractices` with targeted queries
-- **Critical spec-flow gaps** — surface as planning questions before proceeding
 - **Sufficient context** — announce findings briefly and proceed
 
 ### Step 2: Classify and Structure
@@ -263,7 +252,18 @@ Add only the sections that genuinely help:
 - **Phased Delivery** (Phase 1 MVP -> Phase 2)
 - **Documentation & Operational Notes**
 
-### Step 4: Review Before Finalizing
+### Step 4: Flow and Edge-Case Analysis (Optional)
+
+For **Standard** or **Deep** plans where the feature involves multiple user types, state machines, or multi-step workflows, run `cspecflow` against the draft plan before finalizing.
+
+- Pass the draft plan content and feature description to `cspecflow`
+- Use the output to identify missing edge cases, state transitions, or handoff gaps
+- The analysis is written to `docs/specflows/` — reference it from the plan when relevant
+- Incorporate any findings into the plan sections (implementation units, test scenarios, risks)
+
+**Skip when:** Lightweight plans, pure refactors, or single linear flow with no branching.
+
+### Step 5: Review Before Finalizing
 
 Check before writing:
 - [ ] Plan doesn't invent product behavior that should have been in `/brainstorm`
@@ -279,7 +279,7 @@ If an origin document exists, re-read it and verify:
 - Blocking questions were resolved, assumed, or sent back to `/brainstorm`
 - Every section is addressed — nothing was silently dropped
 
-### Step 5: Write and Handoff
+### Step 6: Write and Handoff
 
 1. Write the plan file to `docs/plans/YYYY-MM-DD-NNN-<type>-<name>-plan.md`
 2. Write the file path to `docs/plans/.latest`
@@ -303,7 +303,7 @@ Score the plan against these risk dimensions:
 
 If gaps are found, suggest the `/deepen` skill with specific sections that need strengthening.
 
-### Step 6: Handover
+### Step 7: Handover
 
 Use `#askQuestions` to ask what the user wants to do next:
 

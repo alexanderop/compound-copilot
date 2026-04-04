@@ -6,7 +6,7 @@ argument-hint: "Path to plan file (or reads from docs/plans/.latest)"
 
 # Deepen Plan
 
-Take an existing plan (from `/plan`) and enhance each section with parallel research agents. Each major element gets its own dedicated research sub-agent to find:
+Take an existing plan (from `/cplan`) and enhance each section with parallel research agents. Each major element gets its own dedicated research sub-agent to find:
 - Best practices and industry patterns
 - Performance optimizations
 - UI/UX improvements (if applicable)

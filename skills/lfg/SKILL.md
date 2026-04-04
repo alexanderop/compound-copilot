@@ -37,10 +37,10 @@ Load the `/brainstorm` skill with the user's problem description.
 
 ### 3. Plan
 
-Load the `/plan` skill with the problem description.
+Load the `/cplan` skill with the problem description.
 
 - Skill researches the codebase, writes plan to `docs/plans/`
-- If brainstorm was produced, `/plan` picks it up automatically from `docs/brainstorms/.latest`
+- If brainstorm was produced, `/cplan` picks it up automatically from `docs/brainstorms/.latest`
 - **Do not pause for plan approval** unless the problem was genuinely ambiguous in step 1. For clear problems, proceed immediately.
 - **Override the plan handover** — proceed directly to the next step.
 

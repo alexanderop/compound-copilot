@@ -1,6 +1,6 @@
 ---
 name: document-review
-description: "Review requirements or plan documents using parallel persona agents that surface role-specific issues. Use when a requirements document or plan document exists and the user wants to improve it, or when invoked by /plan for quality gating."
+description: "Review requirements or plan documents using parallel persona agents that surface role-specific issues. Use when a requirements document or plan document exists and the user wants to improve it, or when invoked by /cplan for quality gating."
 argument-hint: "[mode:headless] [path/to/document.md]"
 ---
 
@@ -261,7 +261,7 @@ Use `#askQuestions` to offer these options. Use the document type from Phase 1 t
 
 1. **Refine again** -- Address the findings above, then re-review
 2. **Review complete** -- description based on document type:
-   - requirements document: "Create technical plan with `/plan`"
+   - requirements document: "Create technical plan with `/cplan`"
    - plan document: "Implement with `/work`"
 
 After 2 refinement passes, recommend completion -- diminishing returns are likely. But if the user wants to continue, allow it.
@@ -274,7 +274,7 @@ Return "Review complete" as the terminal signal for callers.
 - Do not add new sections or requirements the user didn't discuss
 - Do not over-engineer or add complexity
 - Do not create separate review files or add metadata sections
-- Do not modify caller skills (`/brainstorm`, `/plan`, or external skills that invoke `/document-review`)
+- Do not modify caller skills (`/brainstorm`, `/cplan`, or external skills that invoke `/document-review`)
 
 ## Iteration Guidance
 
