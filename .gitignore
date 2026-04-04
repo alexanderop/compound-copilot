@@ -1,5 +1,6 @@
 node_modules/
 .DS_Store
+compound-engineering-plugin/
 
 # Pipeline pointer files (ephemeral state)
 docs/brainstorms/.latest

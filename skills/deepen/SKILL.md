@@ -20,7 +20,6 @@ The result is a deeply grounded, production-ready plan with concrete implementat
 This skill dispatches these research subagents in parallel:
 - `cexplore` — codebase patterns and conventions
 - `cdocs` — external documentation via Context7 MCP
-- `cgithistory` — git history analysis
 - `clearnings` — past solutions from `docs/solutions/`
 - `cbestpractices` — industry standards and community patterns
 
@@ -72,10 +71,6 @@ Launch research sub-agents in parallel for each major section:
 - Fetch current documentation via Context7 MCP
 - Find version-specific patterns and constraints
 - Get concrete code examples
-
-**Spawn `cgithistory` on files referenced in the plan:**
-- Understand why existing patterns exist
-- Find prior art for similar changes
 
 **Spawn `clearnings` for documented solutions:**
 - Check `docs/solutions/` for relevant past solutions

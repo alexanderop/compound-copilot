@@ -19,7 +19,6 @@ This skill dispatches read-only research subagents in parallel during Step 1. Th
 - `cexplore` — codebase patterns and conventions (always)
 - `clearnings` — past solutions from `docs/solutions/` (conditional)
 - `cdocs` — external documentation via Context7 MCP (conditional)
-- `cgithistory` — git history analysis (conditional)
 - `cbestpractices` — industry standards and community patterns (conditional)
 - `cspecflow` — user flow completeness analysis (conditional)
 
@@ -75,7 +74,6 @@ Not every task needs all agents. Always run `cexplore`.
 |-------|-----------|------------|
 | `clearnings` | Task touches areas where past problems were documented, or domain is complex | Simple rename, trivial config change |
 | `cdocs` | Task involves external libraries, APIs, or frameworks | Pure internal refactor with no external deps |
-| `cgithistory` | Task modifies code with unclear history, or you need to understand *why* something exists | Greenfield code, new files only |
 | `cbestpractices` | Architectural decisions, new technology adoption, or patterns where industry guidance matters | Bug fixes, small UI tweaks, internal plumbing |
 
 **External research decision heuristics:**
@@ -99,7 +97,6 @@ Use the output to identify missing edge cases, state transitions, or handoff gap
 
 Review all findings. If gaps remain:
 - **High-risk topic gaps** — run `cdocs` or `cbestpractices` with targeted queries
-- **Conflicting patterns** — run `cgithistory` on specific files
 - **Critical spec-flow gaps** — surface as planning questions before proceeding
 - **Sufficient context** — announce findings briefly and proceed
 

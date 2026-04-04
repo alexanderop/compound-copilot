@@ -20,8 +20,17 @@ Structured plan-work-review-compound loops for VS Code Copilot — zero extensio
                  docs     │    verify)   green    │     fix         custom...
                  cspecflow│              commits  │                     │
                  (1.5)    │                       │                     ▼
-                          └───── /work ───────────┘           docs/solutions/
-                            (skip tests)    (test after)     ◄── fed back into future plans
+                    │     └───── /work ───────────┘           docs/solutions/
+                    ▼       (skip tests)    (test after)     ◄── fed back into future plans
+              /document-review
+              /deepen (optional)
+               coherence
+               feasibility
+               adversarial
+               product-lens
+               design-lens
+               scope-guardian
+               security-lens
 ```
 
 Skills ask what you want to do next after each step — pick the suggested option or choose your own path.
@@ -78,6 +87,8 @@ Use skills independently when you don't need the full loop. Each skill asks what
 ```
 /brainstorm Add rate limiting to the API     # explore approaches first
 /plan Add rate limiting to the API           # research & plan
+/document-review docs/plans/2026-04-03-*.md  # multi-persona plan review
+/deepen docs/plans/2026-04-03-*.md           # strengthen weak sections with research
 /test                                        # write tests from plan (before or after code)
 /work docs/plans/2026-04-03-feat-rate-limiting-plan.md   # execute a plan
 /simplify                                    # clean up changed code
@@ -120,7 +131,8 @@ Skills are the primary workflow interface. Each skill asks what you want to do n
 | `/work` | Reads the plan, creates a branch, implements step by step — makes pre-written tests green or writes new ones | `/simplify` or review |
 | `/simplify` | Diffs changed files, launches 3 parallel reviewers (reuse, quality, efficiency), fixes issues directly | review or ship |
 | `/compound` | Documents non-trivial problems into `docs/solutions/` for future reference | ship |
-| `/deepen` | Enhances an existing plan with parallel research for depth, best practices, and edge cases | `/work` or `/test` |
+| `/document-review` | Dispatches persona reviewers (coherence, feasibility, + conditional) against a plan or brainstorm; auto-fixes clear issues, presents the rest | `/plan` or `/work` |
+| `/deepen` | Scores plan sections for confidence gaps, dispatches targeted research, strengthens weak areas | `/work` or `/test` |
 | `/lfg` | Autonomous end-to-end pipeline — runs all stages without asking between steps | — |
 
 ### Utility skills
@@ -150,17 +162,30 @@ Agents are reserved for tasks that need isolated execution context — parallel 
 | `cexplore` | Read-only codebase research — architecture, patterns, conventions |
 | `clearnings` | Searches `docs/solutions/` for past fixes and gotchas |
 | `cdocs` | Fetches current library/framework documentation (Context7, llms.txt, DeepWiki) |
-| `cgithistory` | Traces file evolution, code origin, contributor mapping via git history |
 | `cbestpractices` | Researches industry standards, community conventions, and recommended patterns |
 | `cspecflow` | Analyzes specs for user flow completeness, edge cases, and requirement gaps |
 
-### Reviewers (dispatched by `creview`)
+### Code reviewers (dispatched by `creview`)
 
 | Agent | What it does |
 |-------|-------------|
 | `security-reviewer` | Hunts injection vectors, auth bypasses, hardcoded secrets, SSRF |
 | `refactoring-reviewer` | Detects code smells using Martin Fowler's refactoring patterns |
 | `architecture-reviewer` | Evaluates boundaries, dependencies, coupling, SOLID principles |
+
+### Document reviewers (dispatched by `/document-review`)
+
+These agents review plans and brainstorms _before_ implementation begins. The first two always run; the rest activate conditionally based on document content.
+
+| Agent | What it does | Activation |
+|-------|-------------|------------|
+| `coherence-reviewer` | Contradictions between sections, terminology drift, broken internal references | Always |
+| `feasibility-reviewer` | Architecture conflicts, dependency gaps, migration risks, implementability | Always |
+| `adversarial-document-reviewer` | Challenges premises, surfaces unstated assumptions, stress-tests decisions | >5 requirements, high-stakes domains, new abstractions |
+| `design-lens-reviewer` | Missing design decisions, interaction states, user flows, AI slop risk | UI/UX references in document |
+| `product-lens-reviewer` | Premise challenges, strategic consequences, goal-work misalignment | Challengeable claims, strategic weight |
+| `scope-guardian-reviewer` | Scope exceeds goals, unjustified complexity, priority dependency issues | Large requirement sets, multiple priority tiers |
+| `security-lens-reviewer` | Auth/authz assumptions, data exposure, attack surface, plan-level threat model | Auth, APIs, data handling, third-party integrations |
 
 ## How It Works
 
@@ -173,16 +198,18 @@ The workaround: every agent reads input from disk and writes output to disk. Cha
 ### Context flow
 
 ```
-/brainstorm writes → docs/brainstorms/.latest  (pointer to brainstorm — optional)
-/plan reads        ← docs/brainstorms/.latest  (picks up brainstorm if it exists)
-cspecflow writes   → docs/specflows/.latest    (flow analysis — called by /plan Phase 1.5)
-/plan writes       → docs/plans/.latest        (pointer to current plan)
-/test reads        ← docs/plans/.latest        (writes tests — optional, before or after /work)
-/test writes       → docs/tests/.latest        (list of test file paths)
-/work reads        ← docs/plans/.latest + docs/tests/.latest (if tests exist, makes them green)
-/simplify reads    ← docs/plans/.latest        (diffs + fixes changed code)
-creview writes     → docs/reviews/.latest      (pointer to review report)
-/compound reads    ← docs/plans/.latest + docs/reviews/.latest
+/brainstorm writes    → docs/brainstorms/.latest  (pointer to brainstorm — optional)
+/plan reads           ← docs/brainstorms/.latest  (picks up brainstorm if it exists)
+cspecflow writes      → docs/specflows/.latest    (flow analysis — called by /plan Phase 1.5)
+/plan writes          → docs/plans/.latest        (pointer to current plan)
+/document-review reads← docs/plans/.latest        (multi-persona plan review — optional)
+/deepen reads         ← docs/plans/.latest        (strengthen weak sections — optional)
+/test reads           ← docs/plans/.latest        (writes tests — optional, before or after /work)
+/test writes          → docs/tests/.latest        (list of test file paths)
+/work reads           ← docs/plans/.latest + docs/tests/.latest (if tests exist, makes them green)
+/simplify reads       ← docs/plans/.latest        (diffs + fixes changed code)
+creview writes        → docs/reviews/.latest      (pointer to review report)
+/compound reads       ← docs/plans/.latest + docs/reviews/.latest
 ```
 
 The `.latest` files are single-line pointers containing the path to the most recent artifact. They are gitignored — ephemeral pipeline state, not project artifacts.
