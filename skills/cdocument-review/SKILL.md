@@ -1,5 +1,5 @@
 ---
-name: document-review
+name: cdocument-review
 description: "Review requirements or plan documents using parallel persona agents that surface role-specific issues. Use when a requirements document or plan document exists and the user wants to improve it, or when invoked by /cplan for quality gating."
 argument-hint: "[mode:headless] [path/to/document.md]"
 ---
@@ -37,7 +37,7 @@ If `mode:headless` is not present, the skill runs in its default interactive mod
 
 **If no document is specified (interactive mode):** Ask which document to review using `#askQuestions`, or find the most recent in `docs/brainstorms/` or `docs/plans/` using Glob.
 
-**If no document is specified (headless mode):** Output "Review failed: headless mode requires a document path. Re-invoke with: `/document-review mode:headless <path>`" without dispatching agents.
+**If no document is specified (headless mode):** Output "Review failed: headless mode requires a document path. Re-invoke with: `/cdocument-review mode:headless <path>`" without dispatching agents.
 
 ### Classify Document Type
 
@@ -262,7 +262,7 @@ Use `#askQuestions` to offer these options. Use the document type from Phase 1 t
 1. **Refine again** -- Address the findings above, then re-review
 2. **Review complete** -- description based on document type:
    - requirements document: "Create technical plan with `/cplan`"
-   - plan document: "Implement with `/work`"
+  - plan document: "Implement with `/cwork`"
 
 After 2 refinement passes, recommend completion -- diminishing returns are likely. But if the user wants to continue, allow it.
 
@@ -274,7 +274,7 @@ Return "Review complete" as the terminal signal for callers.
 - Do not add new sections or requirements the user didn't discuss
 - Do not over-engineer or add complexity
 - Do not create separate review files or add metadata sections
-- Do not modify caller skills (`/brainstorm`, `/cplan`, or external skills that invoke `/document-review`)
+- Do not modify caller skills (`/cbrainstorm`, `/cplan`, or external skills that invoke `/cdocument-review`)
 
 ## Iteration Guidance
 

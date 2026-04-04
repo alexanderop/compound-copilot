@@ -1,5 +1,5 @@
 ---
-name: deepen
+name: cdeepen
 description: "Enhance an existing plan with parallel research agents for depth, best practices, and implementation details. Use when the user says 'deepen the plan', 'research more', or when a plan has high-risk dimensions that need more investigation."
 argument-hint: "Path to plan file (or reads from docs/plans/.latest)"
 ---
@@ -151,8 +151,8 @@ Use `#askQuestions` to ask what the user wants to do next:
 
 | Option | When to show |
 |--------|-------------|
-| **Start Implementation (Recommended)** — load the `/work` skill | Always (default) |
-| **Write Tests First (TDD)** — load the `/test` skill | Always |
+| **Start Implementation** — load the `/cwork` skill | Always |
+| **Write Tests First (TDD)** — load the `/ctest` skill | Always |
 | **Deepen further** — re-run research on specific sections | Always |
 | **Review and refine** — iterate on specific sections | Always |
 

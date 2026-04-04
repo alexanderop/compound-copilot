@@ -7,11 +7,11 @@
 Structured plan-work-review-compound loops for VS Code Copilot — zero extension code, markdown skills and agents.
 
 ```
-/lfg Add webhook notifications when posts are published
+/clfg Add webhook notifications when posts are published
 ```
 
 ```
-  /brainstorm ──→ /cplan ──┬──→ /test ──→ /work ──┬──→ /simplify ──→ creview ──→ /compound
+  /cbrainstorm ──→ /cplan ──┬──→ /ctest ──→ /cwork ──┬──→ /csimplify ──→ creview ──→ /ccompound
    (optional)       │     │   (optional)    │     │        │           agent          │
        │            ▼     │      │          ▼     │        ▼            │             ▼
     cexplore     cexplore │    write     cexplore │     reuse       security      cexplore
@@ -19,11 +19,11 @@ Structured plan-work-review-compound loops for VS Code Copilot — zero extensio
     dialogue     learnings│    (red or   make     │     efficiency  architecture  learnings
                  docs     │    verify)   green    │     fix         custom...
                           │              commits  │                     │
-                    │     └───── /work ───────────┘           docs/solutions/
+                    │     └───── /cwork ───────────┘           docs/solutions/
                     ▼       (skip tests)    (test after)     ◄── fed back into future plans
               cspecflow (optional)
-              /document-review
-              /deepen (optional)
+              /cdocument-review
+              /cdeepen (optional)
                coherence
                feasibility
                adversarial
@@ -75,24 +75,24 @@ Requires VS Code 1.109+ with GitHub Copilot.
 Run all stages in one go:
 
 ```
-/lfg Add user authentication with OAuth
+/clfg Add user authentication with OAuth
 ```
 
-This plans the feature, writes failing tests (TDD), implements to make them pass, simplifies the code, runs parallel reviews, and documents what was learned.
+This plans the feature, implements it, optionally runs dedicated testing via `ctest`, simplifies the code, runs parallel reviews, and documents what was learned.
 
 ### Individual skills
 
-Use skills independently when you don't need the full loop. Each skill asks what you want to do next when it finishes:
+Use skills independently when you don't need the full loop. Most skills ask what you want to do next when they finish; `/cplan` stops after writing the plan so planning stays isolated from execution:
 
 ```
-/brainstorm Add rate limiting to the API     # explore approaches first
+/cbrainstorm Add rate limiting to the API    # explore approaches first
 /cplan Add rate limiting to the API           # research & plan
-/document-review docs/plans/2026-04-03-*.md  # multi-persona plan review
-/deepen docs/plans/2026-04-03-*.md           # strengthen weak sections with research
-/test                                        # write tests from plan (before or after code)
-/work docs/plans/2026-04-03-feat-rate-limiting-plan.md   # execute a plan
-/simplify                                    # clean up changed code
-/compound                                    # document learnings
+/cdocument-review docs/plans/2026-04-03-*.md # multi-persona plan review
+/cdeepen docs/plans/2026-04-03-*.md          # strengthen weak sections with research
+/ctest                                       # write tests before or after code, independently of /cwork
+/cwork docs/plans/2026-04-03-feat-rate-limiting-plan.md  # execute a plan
+/csimplify                                   # clean up changed code
+/ccompound                                   # document learnings
 ```
 
 For code review, use the `creview` agent directly (it runs reviewers in isolated context):
@@ -101,12 +101,12 @@ For code review, use the `creview` agent directly (it runs reviewers in isolated
 @creview 42                                  # review PR #42
 ```
 
-Testing is flexible — use `/test` before or after `/work`:
+Testing is independent — use `/ctest` whenever it fits your workflow:
 
 ```
-/cplan → /test → /work → /simplify           # TDD: tests first, then implement
-/cplan → /work → /test → /simplify           # code first, then add tests
-/cplan → /work → /simplify                   # skip tests entirely
+/cplan → /ctest → /cwork → /csimplify        # test-first, if you want it
+/cplan → /cwork → /ctest → /csimplify        # code first, then add tests
+/cplan → /cwork → /csimplify                 # skip tests entirely
 ```
 
 Each `→` is a handover — the skill suggests the next step and you confirm.
@@ -125,24 +125,24 @@ Skills are the primary workflow interface. Each skill asks what you want to do n
 
 | Skill | What it does | Suggests next |
 |-------|-------------|---------------|
-| `/brainstorm` | Explores requirements through dialogue, generates approaches with trade-offs, writes to `docs/brainstorms/` | `/cplan` |
-| `/cplan` | Dispatches research subagents in parallel, asks clarifying questions, writes a plan to `docs/plans/` | `/test` or `/work` |
-| `/test` | Writes tests from the plan's acceptance criteria — TDD red phase or post-implementation verification | `/work` or `/simplify` |
-| `/work` | Reads the plan, creates a branch, implements step by step — makes pre-written tests green or writes new ones | `/simplify` or review |
-| `/simplify` | Diffs changed files, launches 3 parallel reviewers (reuse, quality, efficiency), fixes issues directly | review or ship |
-| `/compound` | Documents non-trivial problems into `docs/solutions/` for future reference | ship |
-| `/document-review` | Dispatches persona reviewers (coherence, feasibility, + conditional) against a plan or brainstorm; auto-fixes clear issues, presents the rest | `/cplan` or `/work` |
-| `/deepen` | Scores plan sections for confidence gaps, dispatches targeted research, strengthens weak areas | `/work` or `/test` |
-| `/lfg` | Autonomous end-to-end pipeline — runs all stages without asking between steps | — |
+| `/cbrainstorm` | Explores requirements through dialogue, generates approaches with trade-offs, writes to `docs/brainstorms/` | `/cplan` |
+| `/cplan` | Dispatches research subagents in parallel, asks clarifying questions, writes a plan to `docs/plans/`, then stops | user explicitly chooses `/ctest`, `/cwork`, or `/cdeepen` next |
+| `/ctest` | Writes tests for a planned or implemented change; can be used before or after `/cwork` | `/cwork` or `/csimplify` |
+| `/cwork` | Reads the plan, creates a branch, and implements step by step without owning test creation | `/csimplify` or review |
+| `/csimplify` | Diffs changed files, launches 3 parallel reviewers (reuse, quality, efficiency), fixes issues directly | review or ship |
+| `/ccompound` | Documents non-trivial problems into `docs/solutions/` for future reference | ship |
+| `/cdocument-review` | Dispatches persona reviewers (coherence, feasibility, + conditional) against a plan or brainstorm; auto-fixes clear issues, presents the rest | `/cplan` or `/cwork` |
+| `/cdeepen` | Scores plan sections for confidence gaps, dispatches targeted research, strengthens weak areas | `/cwork` or `/ctest` |
+| `/clfg` | Autonomous end-to-end pipeline — runs all stages without asking between steps | — |
 
 ### Utility skills
 
 | Skill | What it does |
 |-------|-------------|
-| `/git-commit` | Creates well-crafted commits following repo conventions |
-| `/git-commit-push-pr` | Commits, pushes, and opens a PR in one step |
-| `/git-worktree` | Manages Git worktrees for isolated parallel development |
-| `/create-agent` | Scaffolds new `.agent.md` files with correct Copilot frontmatter |
+| `/cgit-commit` | Creates well-crafted commits following repo conventions |
+| `/cgit-commit-push-pr` | Commits, pushes, and opens a PR in one step |
+| `/cgit-worktree` | Manages Git worktrees for isolated parallel development |
+| `/ccreate-agent` | Scaffolds new `.agent.md` files with correct Copilot frontmatter |
 
 ## Agents
 
@@ -173,7 +173,7 @@ Agents are reserved for tasks that need isolated execution context — parallel 
 | `refactoring-reviewer` | Detects code smells using Martin Fowler's refactoring patterns |
 | `architecture-reviewer` | Evaluates boundaries, dependencies, coupling, SOLID principles |
 
-### Document reviewers (dispatched by `/document-review`)
+### Document reviewers (dispatched by `/cdocument-review`)
 
 These agents review plans and brainstorms _before_ implementation begins. The first two always run; the rest activate conditionally based on document content.
 
@@ -198,25 +198,25 @@ The workaround: every agent reads input from disk and writes output to disk. Cha
 ### Context flow
 
 ```
-/brainstorm writes    → docs/brainstorms/.latest  (pointer to brainstorm — optional)
+/cbrainstorm writes   → docs/brainstorms/.latest  (pointer to brainstorm — optional)
 /cplan reads           ← docs/brainstorms/.latest  (picks up brainstorm if it exists)
 /cplan writes          → docs/plans/.latest        (pointer to current plan)
 cspecflow writes      → docs/specflows/.latest    (optional flow analysis — called by /cplan before finalizing)
-/document-review reads← docs/plans/.latest        (multi-persona plan review — optional)
-/deepen reads         ← docs/plans/.latest        (strengthen weak sections — optional)
-/test reads           ← docs/plans/.latest        (writes tests — optional, before or after /work)
-/test writes          → docs/tests/.latest        (list of test file paths)
-/work reads           ← docs/plans/.latest + docs/tests/.latest (if tests exist, makes them green)
-/simplify reads       ← docs/plans/.latest        (diffs + fixes changed code)
+/cdocument-review reads← docs/plans/.latest       (multi-persona plan review — optional)
+/cdeepen reads        ← docs/plans/.latest        (strengthen weak sections — optional)
+/ctest reads          ← docs/plans/.latest        (writes tests — optional, before or after /cwork)
+/ctest writes         → docs/tests/.latest        (list of test file paths)
+/cwork reads          ← docs/plans/.latest        (implements the plan only)
+/csimplify reads      ← docs/plans/.latest        (diffs + fixes changed code)
 creview writes        → docs/reviews/.latest      (pointer to review report)
-/compound reads       ← docs/plans/.latest + docs/reviews/.latest
+/ccompound reads      ← docs/plans/.latest + docs/reviews/.latest
 ```
 
 The `.latest` files are single-line pointers containing the path to the most recent artifact. They are gitignored — ephemeral pipeline state, not project artifacts.
 
 ### Knowledge compounding
 
-The `/compound` skill writes solutions to `docs/solutions/`. On future runs, `/cplan` dispatches the `clearnings` subagent to search these files. Problems solved once are surfaced automatically in future planning — closing the knowledge loop.
+The `/ccompound` skill writes solutions to `docs/solutions/`. On future runs, `/cplan` dispatches the `clearnings` subagent to search these files. Problems solved once are surfaced automatically in future planning — closing the knowledge loop.
 
 ## Adding Custom Reviewers
 

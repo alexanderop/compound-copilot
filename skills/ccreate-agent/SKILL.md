@@ -1,5 +1,5 @@
 ---
-name: create-agent
+name: ccreate-agent
 description: "Scaffold a new custom agent — reviewers, researchers, or workflow agents. Use when asked to create, scaffold, or add a new agent."
 argument-hint: "Describe the agent to create (e.g., 'Vue reviewer', 'Python linter')"
 ---

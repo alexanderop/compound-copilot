@@ -60,12 +60,10 @@ If the plan already has a `deepened:` date:
 
 **Implementation Units**
 - Dependency order is unclear or likely wrong
-- File paths or test file paths are missing where they should be explicit
+- File paths are missing where they should be explicit
 - Units are too large, too vague, or broken into micro-steps
 - Approach notes are thin or do not name the pattern to follow
-- Test scenarios are vague (don't name inputs and expected outcomes), skip applicable categories (e.g., no error paths for a unit with failure modes, no integration scenarios for a unit crossing layers), or are disproportionate to the unit's complexity
-- Feature-bearing units have blank or missing test scenarios (feature-bearing units require actual test scenarios; the `Test expectation: none` annotation is only valid for non-feature-bearing units)
-- Verification outcomes are vague or not expressed as observable results
+- Verification outcomes are vague, not expressed as observable results, or disconnected from the stated goal
 
 **System-Wide Impact**
 - Affected interfaces, callbacks, middleware, entry points, or parity surfaces are missing
@@ -231,4 +229,4 @@ Do **not**:
 If research reveals a product-level ambiguity that should change behavior or scope:
 - Do not silently decide it here
 - Record it under `Open Questions`
-- Recommend `/brainstorm` if the gap is truly product-defining
+- Recommend `/cbrainstorm` if the gap is truly product-defining

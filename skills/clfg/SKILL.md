@@ -1,5 +1,5 @@
 ---
-name: lfg
+name: clfg
 description: "Autonomous end-to-end pipeline — takes a problem description, plans, implements, tests, reviews, and ships with minimal user interaction. Use when the user says 'lfg', 'just do it', 'ship it end to end', or wants the full pipeline run autonomously."
 argument-hint: "Describe the feature, bug, or problem to solve"
 ---
@@ -29,7 +29,7 @@ If genuinely unclear what the user wants, ask ONE focused question using `#askQu
 
 ### 2. Brainstorm (only if needed)
 
-Load the `/brainstorm` skill with the user's problem description.
+Load the `/cbrainstorm` skill with the user's problem description.
 
 - Skill explores approaches and writes to `docs/brainstorms/`
 - Move to planning immediately after — do not pause for approval
@@ -44,64 +44,59 @@ Load the `/cplan` skill with the problem description.
 - **Do not pause for plan approval** unless the problem was genuinely ambiguous in step 1. For clear problems, proceed immediately.
 - **Override the plan handover** — proceed directly to the next step.
 
-### 4. Test (TDD Red Phase)
+### 4. Implement
 
-Load the `/test` skill.
+Load the `/cwork` skill with the plan path from `docs/plans/.latest`.
 
-- Reads plan from `docs/plans/.latest`
-- Writes failing tests based on acceptance criteria
-- Commits failing tests, writes paths to `docs/tests/.latest`
-- Proceed immediately after completion
-
-### 5. Implement (TDD Green Phase)
-
-Load the `/work` skill with the plan path from `docs/plans/.latest`.
-
-- Implements the solution, making tests pass
+- Implements the solution
 - Creates feature branch, makes incremental commits
 - Proceed immediately after completion
 
-### 6. Simplify
+### 5. Simplify
 
-Load the `/simplify` skill.
+Load the `/csimplify` skill.
 
 - Reviews changed files for code reuse, quality, efficiency
 - Fixes issues directly — deduplication, replacing hand-rolled logic, removing dead code
 - Proceed immediately after completion
 
-### 7. Review
+### 6. Review
 
 Hand off to the `creview` agent (this stays as an agent since it runs reviewers in isolated context).
 
 - Runs security, refactoring, and architecture reviewers in parallel
 - Writes findings to `docs/reviews/`
 
-### 8. Resolve Critical Issues
+### 7. Resolve Critical Issues
 
 If review surfaces P1 (critical) findings:
 
-- Load the `/work` skill with specific P1 findings to fix
-- Re-run tests after fixes
+- Load the `/cwork` skill with specific P1 findings to fix
 
 If no critical findings, skip this step entirely.
+
+### 8. Optional Test Pass
+
+If the user or workflow requires dedicated test creation or verification:
+- Load the `/ctest` skill as a separate step
 
 ### 9. Compound (only if warranted)
 
 **Skip this step** if the work was straightforward with no unexpected issues or learnings.
 
 If there were surprising findings, non-obvious decisions, or reusable patterns discovered:
-- Load the `/compound` skill to document learnings
+- Load the `/ccompound` skill to document learnings
 
 ### 10. Ship
 
-- Load the `/git-commit-push-pr` skill to push and create a PR
+- Load the `/cgit-commit-push-pr` skill to push and create a PR
 - Report the PR URL to the user
 
 ## Orchestration Rules
 
 1. **Never do a skill's job** — you are the orchestrator. If you catch yourself writing code, researching the codebase, writing tests, or reviewing code — stop and load the right skill instead
 2. **Run skills sequentially** — each step depends on the previous step's output. Do not parallelize pipeline steps (skills internally parallelize where they can)
-3. **Keep status updates brief** — one line per completed step: "Plan written to docs/plans/...", "Tests written, all failing as expected", "Implementation complete, 12/12 tests passing"
+3. **Keep status updates brief** — one line per completed step: "Plan written to docs/plans/...", "Implementation complete", "Review report written"
 4. **Fail fast** — if a skill fails or produces unusable output, diagnose why and re-run with better context. Do not attempt to fix it yourself
 5. **Skip optional steps aggressively** — brainstorm, compound, and resolve are all skippable. Only run them when genuinely needed
 

@@ -8,9 +8,10 @@ argument-hint: "Describe the feature, bug fix, or improvement to plan"
 
 Transform feature descriptions, bug reports, or improvement ideas into well-structured implementation plans.
 
-`/brainstorm` defines **WHAT** to build. `/cplan` defines **HOW** to build it. `/work` executes the plan.
+`/cbrainstorm` defines **WHAT** to build. `/cplan` defines **HOW** to build it. `/cwork` executes the plan.
 
 This skill produces a durable implementation plan. It does **not** implement code, run tests, or learn from execution-time results.
+The planning phase is limited to writing the plan artifact and updating `docs/plans/.latest`. Do not start `/ctest`, `/cwork`, or any other execution step from this skill.
 
 ## Subagents
 
@@ -54,13 +55,13 @@ If multiple brainstorms match, use `#askQuestions` to let the user pick.
 If the brainstorm has `Resolve Before Planning` questions:
 - Reclassify technical/architectural ones as planning-owned work
 - Surface remaining product blockers to the user
-- Ask whether to: (a) resume `/brainstorm` to resolve them, or (b) convert to explicit assumptions and continue
+- Ask whether to: (a) resume `/cbrainstorm` to resolve them, or (b) convert to explicit assumptions and continue
 - Do not proceed while true product blockers remain unresolved
 
 #### 0.3 No-Brainstorm Fallback
 
 If no relevant brainstorm exists, assess whether the request is clear enough for direct planning:
-- **Ambiguous product/scope questions** — recommend `/brainstorm` first
+- **Ambiguous product/scope questions** — recommend `/cbrainstorm` first
 - **User wants to continue anyway** — run a quick planning bootstrap to establish: problem frame, intended behavior, scope boundaries, success criteria, blocking assumptions
 - **Request is already clear** — proceed directly
 
@@ -103,9 +104,9 @@ Review all findings. If gaps remain:
 
 If depth is unclear, ask one targeted question and continue.
 
-#### 2.2 Detect Execution Posture
+#### 2.2 Detect Execution Constraints
 
-If the user, brainstorm, or research signals TDD, test-first, characterization-first, or external delegation — carry it forward in relevant implementation unit execution notes. Only ask the user if posture would materially change sequencing.
+If the user, brainstorm, or research signals sequencing or delegation constraints, carry them forward in implementation unit notes only when they materially affect execution ordering or ownership.
 
 #### 2.3 Title and Filename
 
@@ -200,26 +201,17 @@ For each unit:
 **Files:**
 - Create: `path/to/new-file`
 - Modify: `path/to/existing-file`
-- Test: `path/to/test-file`
 
 **Approach:** Key design decisions, data flow, integration notes (2-5 sentences)
-**Execution note:** _(optional)_ TDD red-first | characterization-first | external-delegate
+**Execution note:** _(optional)_ sequencing constraint | coordination note | external-delegate
 **Patterns to follow:** Existing code at `path/to/similar`
-
-**Test scenarios:**
-- Happy path: [specific input -> expected outcome]
-- Edge case: [boundary condition -> expected outcome]
-- Error path: [failure mode -> expected outcome]
-- Integration: [cross-layer scenario -> expected outcome]
 
 **Verification:** How to know this unit is complete (outcomes, not commands)
 ```
 
 Rules for units:
-- Every feature-bearing unit must have test scenarios with specific inputs and expected outcomes
-- For non-feature units (config, scaffolding, styling): `Test expectation: none — [reason]`
-- Include the test file path in Files for feature-bearing units
 - No implementation code — describe the *what*, not the *how*
+- Use `Verification` to describe observable completion outcomes without prescribing tests or commands
 
 #### System-Wide Impact
 
@@ -227,7 +219,7 @@ Rules for units:
 - **Error propagation:** How failures travel across layers
 - **State lifecycle risks:** Partial-write, cache, duplicate, or cleanup concerns
 - **API surface parity:** Other interfaces that may require the same change
-- **Integration coverage:** Cross-layer scenarios unit tests alone won't prove
+- **Integration coverage:** Cross-layer scenarios or interactions that need explicit validation attention
 - **Unchanged invariants:** Existing APIs or behaviors this plan does not change (blast-radius assurance)
 
 Omit categories that don't apply. For lightweight plans, a few bullets suffice.
@@ -259,31 +251,31 @@ For **Standard** or **Deep** plans where the feature involves multiple user type
 - Pass the draft plan content and feature description to `cspecflow`
 - Use the output to identify missing edge cases, state transitions, or handoff gaps
 - The analysis is written to `docs/specflows/` — reference it from the plan when relevant
-- Incorporate any findings into the plan sections (implementation units, test scenarios, risks)
+- Incorporate any findings into the plan sections (implementation units, verification, risks)
 
 **Skip when:** Lightweight plans, pure refactors, or single linear flow with no branching.
 
 ### Step 5: Review Before Finalizing
 
 Check before writing:
-- [ ] Plan doesn't invent product behavior that should have been in `/brainstorm`
+- [ ] Plan doesn't invent product behavior that should have been in `/cbrainstorm`
 - [ ] Every decision is grounded in origin document or research
 - [ ] Each unit is concrete, dependency-ordered, and implementation-ready
-- [ ] Feature-bearing units have test scenarios from every applicable category
-- [ ] Test scenarios name specific inputs, actions, and expected outcomes
+- [ ] Verification outcomes are concrete and observable
 - [ ] Deferred items are explicit, not hidden as fake certainty
 - [ ] All file paths are repo-relative
 
 If an origin document exists, re-read it and verify:
 - Scope boundaries and success criteria are preserved
-- Blocking questions were resolved, assumed, or sent back to `/brainstorm`
+- Blocking questions were resolved, assumed, or sent back to `/cbrainstorm`
 - Every section is addressed — nothing was silently dropped
 
-### Step 6: Write and Handoff
+### Step 6: Write and Stop
 
 1. Write the plan file to `docs/plans/YYYY-MM-DD-NNN-<type>-<name>-plan.md`
 2. Write the file path to `docs/plans/.latest`
 3. Announce: "Plan written to `docs/plans/[filename]`"
+4. Stop. Do not ask a follow-up handoff question and do not load another skill from `/cplan`.
 
 #### Confidence Check (Standard and Deep plans)
 
@@ -301,24 +293,13 @@ Score the plan against these risk dimensions:
 - **Standard with 2+ high-risk dimensions**: Suggest deepening
 - **Deep plans**: Always run confidence check
 
-If gaps are found, suggest the `/deepen` skill with specific sections that need strengthening.
-
-### Step 7: Handover
-
-Use `#askQuestions` to ask what the user wants to do next:
-
-| Option | When to show |
-|--------|-------------|
-| **Write Tests First (TDD) (Recommended)** — load the `/test` skill | Always (default for Standard/Deep) |
-| **Start Implementation** — load the `/work` skill | Always |
-| **Deepen Plan** — load the `/deepen` skill | When 2+ high-risk dimensions or user requests |
-| **Review and refine** — iterate on the plan | Always |
-
-**After the user picks a next skill**, announce the handover and load the chosen skill. Example: "Loading `/work` to start implementation."
+If gaps are found, mention `/cdeepen` as a separate next step the user can choose later, but do not invoke it from `/cplan`.
 
 ## Planning Rules
 
 - **Never write code** — only research and plan
+- **Only write planning artifacts** — the only allowed writes in this phase are the plan file and `docs/plans/.latest`
+- **Never start implementation or test creation from planning** — no `/cwork`, no `/ctest`, no code edits, no test files
 - Use `path/class` references over brittle line numbers
 - Make units checkable with `- [ ]` syntax
 - No implementation code — pseudo-code in High-Level Technical Design only, framed as directional
@@ -330,4 +311,5 @@ Use `#askQuestions` to ask what the user wants to do next:
 - Never echo full file contents into chat — reference by path
 - Summarize codebase findings in 3-5 bullets, not full quotes
 - Say "Written to `docs/plans/xxx.md`" — don't repeat the full plan in chat
+- Do not ask what to do next from within `/cplan`; planning ends after the plan is written
 - Keep chat responses under 500 words

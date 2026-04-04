@@ -1,5 +1,5 @@
 ---
-name: brainstorm
+name: cbrainstorm
 description: "Explore requirements and approaches through collaborative dialogue before writing a right-sized requirements document and planning implementation. Use for feature ideas, problem framing, when the user says 'let's brainstorm', or when they want to think through options before deciding what to build."
 argument-hint: "[feature idea or problem to explore]"
 ---
@@ -206,7 +206,7 @@ topic: kebab-case-topic-name
   - *Deferred to Planning* — can be resolved during planning. Format: `[Affects R2][Technical] Question` or `[Affects R3][Needs research] Question`
   - Rules: use "Resolve Before Planning" sparingly. Do not force resolution of technical questions — those belong in planning. Carry deferred questions forward explicitly.
 - **Alternatives Considered** — what was explored and rejected, with reasons
-- **Next Steps** — `-> /cplan` when ready, or `-> Resume /brainstorm` when blocked
+- **Next Steps** — `-> /cplan` when ready, or `-> Resume /cbrainstorm` when blocked
 
 #### Visual Aids
 
@@ -246,7 +246,7 @@ Use `#askQuestions` to ask what the user wants to do next. Only show options tha
 |--------|-------------|
 | **Start Planning (Recommended)** — load the `/cplan` skill | Always (default recommendation) |
 | **Keep exploring** — continue brainstorming (return to Step 1.3) | Always |
-| **Proceed directly to work** — load the `/work` skill | Only when scope is lightweight, success criteria are clear, and no technical questions remain |
+| **Proceed directly to work** — load the `/cwork` skill | Only when scope is lightweight, success criteria are clear, and no technical questions remain |
 | **Done for now** — end the workflow | Always |
 
 **When blocking questions remain:**
@@ -285,7 +285,7 @@ Planning is blocked by:
 - [Blocking question 1]
 - [Blocking question 2]
 
-Resume /brainstorm when ready to resolve these before planning.
+Resume /cbrainstorm when ready to resolve these before planning.
 ```
 
 ## Response Rules

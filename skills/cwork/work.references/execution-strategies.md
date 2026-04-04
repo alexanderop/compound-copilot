@@ -31,19 +31,18 @@ Each subagent gets:
 1. The full plan file path
 2. Its specific unit details
 3. Context from previously completed units (what changed, what to build on)
-4. Test scenario coverage check for its unit
+4. Any sequencing or coordination constraints relevant to its unit
 
 ## Parallel Subagents
 
 Best for:
 - Independent features (API endpoint + UI component with no shared state)
-- Test suites for different modules
 - Multiple isolated refactors
 
 Rules:
 - Only parallelize units with non-overlapping file sets
 - Handle shared dependencies sequentially first
-- Merge and test after all parallel work completes
+- Merge and validate implementation coherence after all parallel work completes
 
 ## Choosing Between Strategies
 

@@ -1,5 +1,5 @@
 ---
-name: git-commit-push-pr
+name: cgit-commit-push-pr
 description: Commit, push, and open a PR with an adaptive, value-first description. Use when the user says "commit and PR", "push and open a PR", "ship this", "create a PR", "open a pull request", or wants to go from working changes to an open pull request in one step. Also handles "update the PR description" or "refresh the PR description".
 ---
 

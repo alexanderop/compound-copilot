@@ -2,7 +2,7 @@
 
 import { readFile } from "node:fs/promises";
 import { glob } from "node:fs/promises";
-import { basename, relative } from "node:path";
+import { basename, dirname, relative } from "node:path";
 import { validateToolName } from "./copilot-tool-registry.js";
 
 // ---------------------------------------------------------------------------
@@ -180,6 +180,19 @@ function validateFile(filePath, content, knownAgents) {
           errors.push(result.message);
         }
       }
+    }
+  }
+
+  if (type === "skill") {
+    const skillName = extractYamlValue(fm.raw, "name");
+    const skillDir = basename(dirname(filePath));
+
+    if (skillDir && !skillDir.startsWith("c")) {
+      errors.push(`Skill directory "${skillDir}" must start with the "c" prefix`);
+    }
+
+    if (skillName && !skillName.startsWith("c")) {
+      errors.push(`Skill name "${skillName}" must start with the "c" prefix`);
     }
   }
 

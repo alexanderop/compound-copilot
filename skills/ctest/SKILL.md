@@ -1,14 +1,14 @@
 ---
-name: test
-description: "Write tests from a plan's acceptance criteria — before or after implementation. Use when the user says 'write tests', 'test this', 'TDD', or wants to create tests for a planned feature."
+name: ctest
+description: "Write tests for a planned or implemented change. Use when the user says 'write tests', 'test this', 'TDD', or wants to create tests for a feature."
 argument-hint: "Path to plan file or leave empty to read from docs/plans/.latest"
 ---
 
 # Test
 
-Write tests for a plan's acceptance criteria. Works in two modes:
+Write tests for a planned or implemented change. Works in two modes:
 
-- **Before implementation (TDD red phase):** write failing tests that define "done", then hand off to `/work` to make them pass
+- **Before implementation:** write tests first if the user wants a test-first workflow
 - **After implementation:** write tests that verify the code already works, catching gaps in coverage
 
 ## Subagents
@@ -22,8 +22,8 @@ This skill uses the `cexplore` subagent to research testing conventions in the c
 #### 1. Read the Plan
 - If no plan path was provided, read the path from `docs/plans/.latest`
 - Read the plan document completely
-- Extract all acceptance criteria and implementation tasks
-- Identify the testable behaviors — each criterion should map to at least one test
+- Extract the requirements, implementation units, and verification outcomes
+- Identify the testable behaviors from the plan and current code
 
 #### 2. Detect Mode
 - Run `git diff --name-only HEAD` and check if implementation files already exist for the plan's tasks
@@ -100,7 +100,7 @@ Use `#askQuestions` to ask what the user wants to do next, based on mode:
 
 | Option | When to show |
 |--------|-------------|
-| **Start Implementation (Recommended)** — load the `/work` skill | Always (default) |
+| **Start Implementation** — load the `/cwork` skill | Always |
 | **Add more tests** — continue writing tests | Always |
 | **Revise tests** — adjust based on feedback | Always |
 
@@ -108,7 +108,7 @@ Use `#askQuestions` to ask what the user wants to do next, based on mode:
 
 | Option | When to show |
 |--------|-------------|
-| **Simplify Code (Recommended)** — load the `/simplify` skill | Always (default) |
+| **Simplify Code** — load the `/csimplify` skill | Always |
 | **Add more tests** — continue writing tests | Always |
 | **Revise tests** — adjust based on feedback | Always |
 
@@ -116,7 +116,6 @@ Use `#askQuestions` to ask what the user wants to do next, based on mode:
 
 ## Key Principles
 
-- **Tests define "done"** — the implementation is complete when all tests pass
 - **Write the minimum tests that cover the plan** — comprehensive but not exhaustive
 - **Follow existing patterns** — new tests should look like they belong in the project
 - **Adapt to context** — red phase before implementation, green verification after

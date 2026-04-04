@@ -1,6 +1,6 @@
 ---
-name: work
-description: "Execute an implementation plan step by step with testing and commits. Use when the user says 'implement this', 'build this', 'start working', 'execute the plan', or wants to turn a plan into working code."
+name: cwork
+description: "Execute an implementation plan step by step with commits. Use when the user says 'implement this', 'build this', 'start working', 'execute the plan', or wants to turn a plan into working code."
 argument-hint: "Path to plan file or describe what to implement"
 ---
 
@@ -31,14 +31,6 @@ Read these on-demand at the step that needs them — do not bulk-load at start:
 - Get user approval to proceed
 - **Do not skip this** — better to ask now than build the wrong thing
 
-#### 1b. Check for TDD Tests
-- Check if `docs/tests/.latest` exists
-- If it does, read it to get the list of pre-written failing test files
-- Read each test file to understand the expected behavior
-- **These tests define "done"** — your goal is to make them all pass
-- Announce: "Found [N] pre-written test files from TDD red phase. Implementation goal: make all tests green."
-- If no `docs/tests/.latest` exists, proceed normally — you'll write tests as part of implementation
-
 #### 2. Setup Environment
 
 Check the current branch:
@@ -52,7 +44,6 @@ Check the current branch:
 
 - Break the plan into actionable tasks
 - Prioritize based on dependencies
-- Include testing tasks
 - Keep tasks specific and completable
 - **Choose execution strategy:**
   - 1-2 tasks -> inline (execute directly)
@@ -68,11 +59,8 @@ For each task in priority order:
 1. Read any referenced files from the plan
 2. Look for similar patterns in the codebase using the `cexplore` subagent
 3. Implement following existing conventions
-4. **If TDD tests exist:** run them to check which pass now — focus on making the next failing test green
-5. **If no TDD tests:** write tests for new functionality
-6. Run tests after changes
-7. Check off the corresponding item in the plan file (`- [ ]` -> `- [x]`)
-8. Evaluate for incremental commit
+4. Check off the corresponding item in the plan file (`- [ ]` -> `- [x]`)
+5. Evaluate for incremental commit
 
 #### Incremental Commits
 
@@ -81,16 +69,15 @@ After completing each logical unit, evaluate whether to commit:
 | Commit when... | Don't commit when... |
 |----------------|---------------------|
 | Logical unit complete (model, service, component) | Small part of a larger unit |
-| Tests pass + meaningful progress | Tests failing |
+| Meaningful progress is complete and coherent | The unit is still partial |
 | About to switch contexts (backend -> frontend) | Purely scaffolding with no behavior |
 | About to attempt risky/uncertain changes | Would need a "WIP" commit message |
 
 **Heuristic:** "Can I write a commit message that describes a complete, valuable change? If yes, commit."
 
 Commit workflow:
-1. Run tests (use project's test command)
-2. Stage only files related to this logical unit
-3. Commit with conventional message: `feat(scope): description`
+1. Stage only files related to this logical unit
+2. Commit with conventional message: `feat(scope): description`
 
 #### Follow Existing Patterns
 - Read referenced files from the plan first
@@ -98,20 +85,18 @@ Commit workflow:
 - Reuse existing components where possible
 - When in doubt, search for similar implementations
 
-#### Test Continuously
-- Run relevant tests after each significant change
-- Fix failures immediately
-- Add new tests for new functionality
+#### Stay Plan-Faithful
+- Keep implementation aligned to the plan's stated scope and verification outcomes
+- Do not create or modify tests as part of `/cwork`; use `/ctest` separately when needed
 
 ### Phase 3: Quality Check
 
 **Read `work.references/quality-checklist.md`** and run through the pre-ship checklist.
 
-1. Run the full test suite
-2. Run linting (per project conventions)
-3. Verify all plan tasks are checked off
-4. Ensure code follows existing patterns
-5. **Determine review tier:**
+1. Run linting (per project conventions)
+2. Verify all plan tasks are checked off
+3. Ensure code follows existing patterns
+4. **Determine review tier:**
    - **Tier 1 (self-review):** purely additive, single concern, pattern-following, plan-faithful -> ship
    - **Tier 2 (full review, default):** everything else -> recommend review
 
@@ -126,10 +111,9 @@ Use `#askQuestions` to ask what the user wants to do next:
 
 | Option | When to show |
 |--------|-------------|
-| **Simplify Code (Recommended)** — load the `/simplify` skill | Always (default) |
-| **Write Tests** — load the `/test` skill for post-implementation verification | When no TDD tests were pre-written |
+| **Simplify Code (Recommended)** — load the `/csimplify` skill | Always (default) |
 | **Review Changes** — hand off to `creview` agent for code review | Always |
-| **Ship It** — load the `/git-commit-push-pr` skill to create a PR | When Tier 1 self-review is sufficient |
+| **Ship It** — load the `/cgit-commit-push-pr` skill to create a PR | When Tier 1 self-review is sufficient |
 | **Done** — end the workflow | Always |
 
 **After the user picks a next skill**, announce the handover and load the chosen skill.
@@ -138,9 +122,9 @@ Use `#askQuestions` to ask what the user wants to do next:
 
 - **Start fast, execute faster** — clarify once, then build
 - **The plan is your guide** — follow referenced patterns, don't reinvent
-- **Test as you go** — continuous testing prevents big surprises
 - **Ship complete features** — finish the feature, don't leave it 80% done
 - **Update the plan** — check off items as you complete them
+- **Testing is separate** — `/ctest` owns test creation and test-focused verification
 
 ## Response Rules
 

@@ -1,5 +1,5 @@
 ---
-name: simplify
+name: csimplify
 description: "Review changed code for reuse, quality, and efficiency — fix issues before review. Use when the user says 'simplify', 'clean up', 'review the code', or wants to improve code quality before formal review."
 argument-hint: "Leave empty to review current changes"
 ---
@@ -66,8 +66,8 @@ Use `#askQuestions` to ask what the user wants to do next:
 | Option | When to show |
 |--------|-------------|
 | **Review Changes (Recommended)** — hand off to `creview` agent for formal code review | Always (default) |
-| **Ship It** — load the `/git-commit-push-pr` skill to create a PR | When changes are minor/low-risk |
-| **Document Learnings** — load the `/compound` skill | When non-trivial patterns were discovered |
+| **Ship It** — load the `/cgit-commit-push-pr` skill to create a PR | When changes are minor/low-risk |
+| **Document Learnings** — load the `/ccompound` skill | When non-trivial patterns were discovered |
 | **Done** — end the workflow | Always |
 
 **After the user picks a next skill**, announce the handover and load the chosen skill.

@@ -1,5 +1,5 @@
 ---
-name: git-worktree
+name: cgit-worktree
 description: Manage Git worktrees for isolated parallel development. Use when the user wants to work on multiple features in parallel, review code in isolation, or needs a clean workspace. Handles creating, listing, switching, and cleaning up worktrees.
 ---
 
@@ -72,7 +72,7 @@ Always confirm before removing. Never remove the current worktree.
    - Yes → create worktree, cd into it
    - No → proceed with PR diff on current branch
 
-### With `/work`
+### With `/cwork`
 
 Always offer the choice using `#askQuestions`:
 1. **New branch** (live work on current worktree)

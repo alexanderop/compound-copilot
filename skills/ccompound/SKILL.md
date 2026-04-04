@@ -1,5 +1,5 @@
 ---
-name: compound
+name: ccompound
 description: "Document a solved problem as reusable institutional knowledge with parallel research. Use when the user says 'document this', 'compound', 'save learnings', or wants to capture a solution for future reference."
 argument-hint: "Brief context about the problem you just solved (optional)"
 ---
@@ -165,7 +165,7 @@ Use `#askQuestions` to ask what the user wants to do next:
 
 | Option | When to show |
 |--------|-------------|
-| **Ship It (Recommended)** — load the `/git-commit-push-pr` skill | When there's code to ship |
+| **Ship It (Recommended)** — load the `/cgit-commit-push-pr` skill | When there's code to ship |
 | **Link related documentation** — update cross-references | When moderate overlap was found |
 | **Update other references** — refresh stale docs | When stale docs were flagged |
 | **Done** — end the workflow | Always |
